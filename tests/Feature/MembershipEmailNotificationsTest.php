@@ -13,8 +13,11 @@ use App\Services\PaymentService;
 use App\Services\SmtpSettingsService;
 use App\Services\SubscriptionService;
 use App\Services\UserService;
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Schema;
 
 uses(RefreshDatabase::class);
 
@@ -121,4 +124,20 @@ test('saved smtp settings are applied to the mail configuration', function () {
         ->and(config('mail.mailers.smtp.port'))->toBe(587)
         ->and(config('mail.from.address'))->toBe('members@example.test')
         ->and(config('mail.from.name'))->toBe('IRON NEST');
+});
+
+test('smtp settings do not prevent startup when the database is unavailable', function () {
+    Schema::shouldReceive('hasTable')
+        ->once()
+        ->with('settings')
+        ->andThrow(new QueryException('sqlite', 'select * from settings', [], new \PDOException('database unavailable')));
+
+    Log::shouldReceive('warning')
+        ->once()
+        ->with(
+            'Saved SMTP settings could not be loaded because the database is unavailable.',
+            Mockery::type('array'),
+        );
+
+    app(SmtpSettingsService::class)->applySavedSettings();
 });

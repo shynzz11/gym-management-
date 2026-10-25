@@ -3,6 +3,8 @@
 namespace App\Services;
 
 use App\Models\Setting;
+use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 
 class SmtpSettingsService
@@ -19,11 +21,17 @@ class SmtpSettingsService
 
     public function applySavedSettings(): void
     {
-        if (! Schema::hasTable('settings')) {
-            return;
-        }
+        try {
+            if (! Schema::hasTable('settings')) {
+                return;
+            }
 
-        $this->apply(Setting::query()->whereIn('key', self::KEYS)->pluck('value', 'key')->all());
+            $this->apply(Setting::query()->whereIn('key', self::KEYS)->pluck('value', 'key')->all());
+        } catch (QueryException $exception) {
+            Log::warning('Saved SMTP settings could not be loaded because the database is unavailable.', [
+                'exception' => $exception,
+            ]);
+        }
     }
 
     public function apply(array $settings): void
