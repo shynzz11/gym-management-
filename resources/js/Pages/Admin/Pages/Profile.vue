@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import AdminLayout from '@/Layouts/AdminLayout.vue';
-import { useForm, usePage, router } from '@inertiajs/vue3';
+import { useForm, usePage } from '@inertiajs/vue3';
 import { ref } from 'vue';
+import AdminLayout from '@/Layouts/AdminLayout.vue';
 import admin from '@/routes/admin';
 
 const showCurrentPassword = ref(false);

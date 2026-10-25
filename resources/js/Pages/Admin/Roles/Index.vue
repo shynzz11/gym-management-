@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { Head, Link, router } from '@inertiajs/vue3';
-import { PropType, ref } from 'vue';
-import { PlusCircle, Crown, Shield, ShieldCheck, MoreVertical, Layers, Users, Trash2, ArrowRight, Plus } from 'lucide-vue-next';
-import admin from '@/routes/admin';
+import { PlusCircle, Crown, Shield, ShieldCheck, Layers, Users, Trash2, ArrowRight, Plus } from 'lucide-vue-next';
+import type { PropType} from 'vue';
+import { ref } from 'vue';
 import ConfirmationModal from '@/Components/Common/ConfirmationModal.vue';
+import AdminLayout from '@/Layouts/AdminLayout.vue';
+import admin from '@/routes/admin';
 
 defineProps({
     roles: Array as PropType<any[]>,

@@ -1,10 +1,8 @@
 <script setup lang="ts">
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import Card from '@/Shared/Card.vue';
-import Button from '@/Shared/Button.vue';
-
 defineProps<{
-    brand: Object;
+    brand: object;
 }>();
 </script>
 

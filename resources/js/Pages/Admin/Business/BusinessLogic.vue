@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
 import { useForm } from '@inertiajs/vue3';
-import AdminLayout from '@/Layouts/AdminLayout.vue';
-import { index, update } from '@/routes/admin/business/settings';
 import { Settings, DollarSign, Globe, MapPin, Search, Clock } from 'lucide-vue-next';
+import { ref, computed } from 'vue';
+import AdminLayout from '@/Layouts/AdminLayout.vue';
+import { update } from '@/routes/admin/business/settings';
 
 const props = defineProps<{
     settings: {
@@ -93,7 +93,7 @@ const getTimezoneInfo = (timezone: string) => {
         const offset = `UTC${offsetSign}${offsetHours}`;
 
         return { time, offset };
-    } catch (e) {
+    } catch {
         return { time: '', offset: 'UTC' };
     }
 };

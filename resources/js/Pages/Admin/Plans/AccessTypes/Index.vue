@@ -1,13 +1,14 @@
 <script setup lang="ts">
+import { Head, Link, router } from '@inertiajs/vue3';
+import { debounce } from 'lodash';
+import { PlusCircle, Clock, Trash2, Edit3, Power, AlertCircle, ShieldCheck, Search, ArrowLeft } from 'lucide-vue-next';
+import type { PropType} from 'vue';
+import { computed, ref, watch } from 'vue';
 import { destroy, toggleActive } from '@/actions/App/Http/Controllers/Admin/PlanAccessTypeController';
 import AppTooltip from '@/Components/Common/AppTooltip.vue';
 import ConfirmationModal from '@/Components/Common/ConfirmationModal.vue';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import admin from '@/routes/admin';
-import { Head, Link, router } from '@inertiajs/vue3';
-import { debounce } from 'lodash';
-import { computed, PropType, ref, watch } from 'vue';
-import { PlusCircle, Clock, Trash2, Edit3, Power, AlertCircle, ShieldCheck, Search, ArrowLeft } from 'lucide-vue-next';
 import AccessTypeFormModal from './Partials/AccessTypeFormModal.vue';
 
 const props = defineProps({
@@ -302,7 +303,6 @@ const formatTime = (time: string | null) => {
                             v-for="(link, index) in paginationLinks"
                             :key="index"
                             :href="link.url || '#'"
-                            v-html="link.label"
                             class="rounded-lg px-3 py-1 text-xs font-semibold transition-colors"
                             :class="
                                 link.active
@@ -311,7 +311,9 @@ const formatTime = (time: string | null) => {
                             "
                             :preserve-state="true"
                             :preserve-scroll="true"
-                        />
+                        >
+                            <span v-html="link.label"></span>
+                        </Link>
                     </div>
                 </div>
             </div>

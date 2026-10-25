@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { Link } from '@inertiajs/vue3';
 import { ref, onMounted } from 'vue';
-import AdminSidebar from '@/Components/Admin/Sidebar.vue';
 import AdminHeader from '@/Components/Admin/Header.vue';
+import AdminSidebar from '@/Components/Admin/Sidebar.vue';
 import Toast from '@/Components/Common/Toast.vue';
 import { useBrandingCss } from '@/Composables/useBrandingCss';
 

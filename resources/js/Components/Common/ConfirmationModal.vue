@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { PropType } from 'vue';
 import { AlertTriangle, AlertCircle, Info, Loader2 } from 'lucide-vue-next';
+import type { PropType } from 'vue';
 
-const props = defineProps({
+defineProps({
     show: Boolean,
     title: {
         type: String,
@@ -30,7 +30,7 @@ const props = defineProps({
     },
 });
 
-const emit = defineEmits(['close', 'confirm']);
+defineEmits(['close', 'confirm']);
 
 const colors = {
     danger: {

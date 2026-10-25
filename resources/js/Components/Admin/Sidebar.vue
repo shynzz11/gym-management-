@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3';
-import { computed, ref, watch } from 'vue';
 import {
     LayoutDashboard,
     Users,
@@ -23,6 +22,7 @@ import {
     Mail,
     Wallet,
 } from 'lucide-vue-next';
+import { computed, ref, watch } from 'vue';
 import admin from '@/routes/admin';
 
 // Icon mapping
@@ -49,7 +49,7 @@ const icons: Record<string, any> = {
     Wallet,
 };
 
-const props = defineProps<{
+defineProps<{
     isCollapsed: boolean;
 }>();
 

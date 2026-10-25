@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import GuestLayout from '@/Layouts/PublicLayout.vue';
 import { Head, Link, usePage } from '@inertiajs/vue3';
+import { Home, ChevronRight, Mail, Phone, MapPin, Facebook, Twitter, Instagram } from 'lucide-vue-next';
 import { computed } from 'vue';
-import { Home, ChevronRight, Mail, Phone, MapPin, Facebook, Twitter, Instagram, AlertCircle } from 'lucide-vue-next';
+import GuestLayout from '@/Layouts/PublicLayout.vue';
 
 // Access business settings from props
 const page = usePage();

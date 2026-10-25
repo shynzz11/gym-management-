@@ -1,14 +1,15 @@
 <script setup lang="ts">
+import { Head, Link, router, useForm } from '@inertiajs/vue3';
+import dayjs from 'dayjs';
+import { debounce } from 'lodash';
+import { CheckCircle2, ChevronDown, Crown, PlusCircle, Repeat, Search, User, UsersRound, X } from 'lucide-vue-next';
+import type { PropType} from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import AppTooltip from '@/Components/Common/AppTooltip.vue';
 import ConfirmationModal from '@/Components/Common/ConfirmationModal.vue';
-import AdminLayout from '@/Layouts/AdminLayout.vue';
-import { Head, Link, router, useForm } from '@inertiajs/vue3';
-import { computed, onBeforeUnmount, onMounted, PropType, ref, watch } from 'vue';
-import { CheckCircle2, ChevronDown, Crown, PlusCircle, Repeat, Search, User, UsersRound, X } from 'lucide-vue-next';
-import admin from '@/routes/admin';
-import dayjs from 'dayjs';
 import useCurrency from '@/Composables/useCurrency';
-import { debounce } from 'lodash';
+import AdminLayout from '@/Layouts/AdminLayout.vue';
+import admin from '@/routes/admin';
 
 const props = defineProps({
     subscriptions: Object as PropType<any>,
@@ -559,7 +560,6 @@ const renewActionTooltip = (subscription: any): string => {
                             v-for="(link, index) in paginationLinks"
                             :key="index"
                             :href="link.url || '#'"
-                            v-html="link.label"
                             class="rounded-lg px-3 py-1 text-xs font-semibold transition-colors"
                             :class="
                                 link.active
@@ -568,7 +568,9 @@ const renewActionTooltip = (subscription: any): string => {
                             "
                             :preserve-state="true"
                             :preserve-scroll="true"
-                        />
+                        >
+                            <span v-html="link.label"></span>
+                        </Link>
                     </div>
                 </div>
             </div>

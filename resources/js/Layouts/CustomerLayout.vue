@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { Link } from '@inertiajs/vue3';
 import { ref, onMounted, watch } from 'vue';
-import CustomerSidebar from '@/Components/Customer/Sidebar.vue';
-import CustomerHeader from '@/Components/Customer/Header.vue';
 import Toast from '@/Components/Common/Toast.vue';
+import CustomerHeader from '@/Components/Customer/Header.vue';
+import CustomerSidebar from '@/Components/Customer/Sidebar.vue';
 import { useBrandingCss } from '@/Composables/useBrandingCss';
 
 const isSidebarCollapsed = ref(false);

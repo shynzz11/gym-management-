@@ -1,21 +1,9 @@
 <script setup lang="ts">
-import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { Head, useForm, usePage } from '@inertiajs/vue3';
-import { ref, onMounted, watch } from 'vue';
-import { update } from '@/actions/App/Http/Controllers/Admin/BusinessSettingController';
 import {
     Palette,
-    Share2,
-    Shield,
-    LayoutDashboard,
-    Users,
     Briefcase,
-    Menu,
-    Moon,
-    Sun,
-    ArrowLeftRight,
     Save,
-    Camera,
     Link as LinkIcon,
     Upload,
     Info,
@@ -25,9 +13,10 @@ import {
     Facebook,
     Twitter,
     Instagram,
-    CheckCircle,
-    Globe,
 } from 'lucide-vue-next';
+import { ref, onMounted, watch } from 'vue';
+import { update } from '@/actions/App/Http/Controllers/Admin/BusinessSettingController';
+import AdminLayout from '@/Layouts/AdminLayout.vue';
 
 const props = defineProps({
     settings: {
@@ -268,10 +257,6 @@ const submit = () => {
 };
 
 // UI Helpers
-const triggerInput = (id: string) => {
-    document.getElementById(id)?.click();
-};
-
 const triggerFileInput = (refName: 'logoInput' | 'faviconInput') => {
     if (refName === 'logoInput') logoInput.value?.click();
     if (refName === 'faviconInput') faviconInput.value?.click();

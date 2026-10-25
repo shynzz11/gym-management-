@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { switchMethod } from '@/routes/locale';
-import { usePage, router } from '@inertiajs/vue3';
+import { usePage } from '@inertiajs/vue3';
 import { computed, ref, onMounted, onUnmounted } from 'vue';
+import { switchMethod } from '@/routes/locale';
 
 const page = usePage();
 const currentLocale = computed(() => page.props.locale as string);
@@ -15,7 +15,6 @@ const locales: Record<string, { name: string; flag: string }> = {
 
 const switchLocale = (locale: string) => {
     isOpen.value = false;
-    // @ts-ignore
     window.location.href = switchMethod({ locale }).url;
 };
 

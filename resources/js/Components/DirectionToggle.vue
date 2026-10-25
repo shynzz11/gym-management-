@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
 import { ArrowLeftRight } from 'lucide-vue-next';
+import { ref, onMounted } from 'vue';
 
 interface Props {
     showLabel?: boolean;
     className?: string;
 }
 
-const props = withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Props>(), {
     showLabel: true,
     className: '',
 });

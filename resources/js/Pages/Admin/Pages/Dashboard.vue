@@ -1,13 +1,20 @@
 <script setup lang="ts">
-import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { Head, Link, usePage } from '@inertiajs/vue3';
-import { DollarSign, Users, CalendarClock, Activity, UserX, MessageCircle } from 'lucide-vue-next';
 import dayjs from 'dayjs';
-import useCurrency from '@/Composables/useCurrency';
-import admin from '@/routes/admin';
+import { DollarSign, Users, CalendarClock, Activity, UserX, MessageCircle } from 'lucide-vue-next';
 import { computed } from 'vue';
+import useCurrency from '@/Composables/useCurrency';
+import AdminLayout from '@/Layouts/AdminLayout.vue';
+import admin from '@/routes/admin';
 
-const props = defineProps<{
+interface ExpiringMember {
+    id: number;
+    name: string;
+    phone: string | null;
+    end_date: string;
+}
+
+defineProps<{
     stats: {
         total_members: number;
         total_revenue: number;
@@ -32,12 +39,7 @@ const props = defineProps<{
         user?: { name?: string };
         plan?: { name?: string };
     }>;
-    expiring_members: Array<{
-        id: number;
-        name: string;
-        phone: string | null;
-        end_date: string;
-    }>;
+    expiring_members: ExpiringMember[];
 }>();
 
 const { formatCurrency } = useCurrency();
@@ -45,15 +47,11 @@ const page = usePage();
 const businessSettings = computed(() => (page.props.branding as any)?.business_settings || {});
 const businessName = computed(() => businessSettings.value.business_name || page.props.name || 'GymOS');
 
-const formatDateTime = (date: string): string => {
-    return dayjs(date).format('MMM D, YYYY h:mm A');
-};
-
 const formatDate = (date: string): string => {
     return dayjs(date).format('MMM D, YYYY');
 };
 
-const whatsappUrl = (member: (typeof props.expiring_members)[number]): string => {
+const whatsappUrl = (member: ExpiringMember): string => {
     const message = `Hello ${member.name},\nYour membership at IRON-NEST is valid until ${formatDate(member.end_date)}. We would love to see you continue your fitness journey with us! You can easily pay at the counter next time you drop by.\nPls ignore if already renewed. Thank you!`;
 
     return `https://wa.me/${member.phone}?text=${encodeURIComponent(message)}`;

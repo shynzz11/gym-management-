@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
 import { ChevronRight, ArrowLeft, Clock, Monitor, Globe, User as UserIcon, FileText, History } from 'lucide-vue-next';
+import AdminLayout from '@/Layouts/AdminLayout.vue';
 import admin from '@/routes/admin';
 
-const props = defineProps<{
+defineProps<{
     log: any;
 }>();
 

@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import customer from '@/routes/customer';
-import CustomerLayout from '@/Layouts/CustomerLayout.vue';
+import { Head, Link, useForm, usePage } from '@inertiajs/vue3';
+import dayjs from 'dayjs';
+import { Activity, CalendarClock, ChevronDown, ChevronLeft, ChevronRight, Dumbbell, Search, Wallet, X, Zap } from 'lucide-vue-next';
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import PlanFeatureList from '@/Components/Common/PlanFeatureList.vue';
 import useCurrency from '@/Composables/useCurrency';
-import { Head, Link, useForm, usePage } from '@inertiajs/vue3';
-import { Activity, CalendarClock, ChevronDown, ChevronLeft, ChevronRight, Dumbbell, Search, Wallet, X, Zap } from 'lucide-vue-next';
-import dayjs from 'dayjs';
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import CustomerLayout from '@/Layouts/CustomerLayout.vue';
+import customer from '@/routes/customer';
 
 type PaymentGateway = 'sslcommerz' | 'stripe' | 'cash';
 
@@ -198,7 +198,6 @@ const checkoutAmountBdt = computed(() => {
 
     return Number(plan.price);
 });
-const checkoutDisplayAmount = computed(() => formatCurrency(checkoutAmountBdt.value));
 const isFreeCheckoutPlan = computed(() => checkoutAmountBdt.value <= 0);
 const systemCurrencyCode = computed(() => {
     return String(props.paymentOptions?.currency_code ?? 'INR').trim().toUpperCase();

@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { Head, Link, router, useForm } from '@inertiajs/vue3';
-import { computed, PropType, ref, watch } from 'vue';
-import admin from '@/routes/admin';
 import { debounce } from 'lodash';
 import { PlusCircle, Search, Crown, Shield, Pencil, Trash2, Eye, X } from 'lucide-vue-next';
+import type { PropType} from 'vue';
+import { computed, ref, watch } from 'vue';
 import ConfirmationModal from '@/Components/Common/ConfirmationModal.vue';
+import AdminLayout from '@/Layouts/AdminLayout.vue';
+import admin from '@/routes/admin';
 
 const props = defineProps({
     users: Object as PropType<any>,
@@ -568,7 +569,6 @@ const handleDelete = () => {
                             v-for="(link, key) in users.links"
                             :key="key"
                             :href="link.url || '#'"
-                            v-html="link.label"
                             class="rounded-lg border border-transparent px-3 py-1 text-xs transition-colors"
                             :class="
                                 link.active
@@ -576,7 +576,9 @@ const handleDelete = () => {
                                     : 'text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700'
                             "
                             :preserve-state="true"
-                        />
+                        >
+                            <span v-html="link.label"></span>
+                        </Link>
                     </div>
                 </div>
             </div>

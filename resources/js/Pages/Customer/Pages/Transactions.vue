@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import AppTooltip from '@/Components/Common/AppTooltip.vue';
-import CustomerLayout from '@/Layouts/CustomerLayout.vue';
-import useCurrency from '@/Composables/useCurrency';
 import { Head, Link } from '@inertiajs/vue3';
-import { CalendarClock, Wallet } from 'lucide-vue-next';
 import dayjs from 'dayjs';
+import { CalendarClock, Wallet } from 'lucide-vue-next';
+import AppTooltip from '@/Components/Common/AppTooltip.vue';
+import useCurrency from '@/Composables/useCurrency';
+import CustomerLayout from '@/Layouts/CustomerLayout.vue';
 
-const props = defineProps<{
+defineProps<{
     payments: {
         data: any[];
         links: Array<{ url: string | null; label: string; active: boolean }>;
@@ -141,7 +141,6 @@ const paymentStatusTooltip = (payment: any): string => {
                         v-for="(link, index) in payments.links"
                         :key="index"
                         :href="link.url || '#'"
-                        v-html="link.label"
                         class="rounded-lg border border-transparent px-3 py-1 text-xs transition-colors"
                         :class="
                             link.active
@@ -149,7 +148,9 @@ const paymentStatusTooltip = (payment: any): string => {
                                 : 'text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700'
                         "
                         :preserve-state="true"
-                    />
+                    >
+                        <span v-html="link.label"></span>
+                    </Link>
                 </div>
             </div>
         </div>

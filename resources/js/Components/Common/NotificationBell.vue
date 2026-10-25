@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
-import { Link } from '@inertiajs/vue3';
-import { Bell, Check, CheckCheck, Trash2, X, Info, CheckCircle, AlertTriangle, AlertCircle } from 'lucide-vue-next';
+import { Link, usePage } from '@inertiajs/vue3';
 import axios from 'axios';
+import { Bell, Check, CheckCheck, Trash2, Info, CheckCircle, AlertTriangle, AlertCircle } from 'lucide-vue-next';
+import { onMounted, ref } from 'vue';
 
 const props = defineProps<{
     recentUrl: string;
@@ -21,8 +21,6 @@ interface Notification {
     read_at: string | null;
     created_at: string;
 }
-
-import { usePage } from '@inertiajs/vue3';
 
 const page = usePage();
 const notifications = ref<Notification[]>([]);

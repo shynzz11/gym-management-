@@ -1,13 +1,14 @@
 <script setup lang="ts">
+import { Head, Link, router } from '@inertiajs/vue3';
+import { debounce } from 'lodash';
+import { PlusCircle, Edit3, Trash2, ArrowLeft, AlertCircle } from 'lucide-vue-next';
+import type { PropType} from 'vue';
+import { computed, ref, watch } from 'vue';
 import { destroy } from '@/actions/App/Http/Controllers/Admin/PlanFacilityController';
 import AppTooltip from '@/Components/Common/AppTooltip.vue';
 import ConfirmationModal from '@/Components/Common/ConfirmationModal.vue';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import admin from '@/routes/admin';
-import { Head, Link, router } from '@inertiajs/vue3';
-import { debounce } from 'lodash';
-import { PropType, computed, ref, watch } from 'vue';
-import { PlusCircle, Edit3, Trash2, ArrowLeft, AlertCircle } from 'lucide-vue-next';
 import FacilityFormModal from './Partials/FacilityFormModal.vue';
 
 const props = defineProps({
@@ -231,7 +232,6 @@ const handleDelete = (): void => {
                             v-for="(link, index) in paginationLinks"
                             :key="index"
                             :href="link.url || '#'"
-                            v-html="link.label"
                             class="rounded-lg px-3 py-1 text-xs font-semibold transition-colors"
                             :class="
                                 link.active
@@ -240,7 +240,9 @@ const handleDelete = (): void => {
                             "
                             :preserve-state="true"
                             :preserve-scroll="true"
-                        />
+                        >
+                            <span v-html="link.label"></span>
+                        </Link>
                     </div>
                 </div>
             </div>

@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
-import { PropType } from 'vue';
 import { ChevronRight, Fingerprint } from 'lucide-vue-next';
+import type { PropType } from 'vue';
+import AdminLayout from '@/Layouts/AdminLayout.vue';
 import admin from '@/routes/admin';
 
-const props = defineProps({
+defineProps({
     permissions: Object as PropType<Record<string, any>>,
 });
 

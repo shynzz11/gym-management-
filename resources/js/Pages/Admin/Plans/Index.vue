@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
-import { PropType, ref, computed } from 'vue';
 import {
     PlusCircle,
     Dumbbell,
@@ -19,11 +17,14 @@ import {
     Tag,
     X,
 } from 'lucide-vue-next';
+import type { PropType} from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import AppTooltip from '@/Components/Common/AppTooltip.vue';
 import ConfirmationModal from '@/Components/Common/ConfirmationModal.vue';
-import PlanFormModal from './Partials/PlanFormModal.vue';
-import admin from '@/routes/admin';
 import useCurrency from '@/Composables/useCurrency';
+import AdminLayout from '@/Layouts/AdminLayout.vue';
+import admin from '@/routes/admin';
+import PlanFormModal from './Partials/PlanFormModal.vue';
 
 const props = defineProps({
     plans: Array as PropType<any[]>,
@@ -156,6 +157,15 @@ const openPlanDetails = (plan: any) => {
 const closePlanDetails = () => {
     selectedPlanId.value = null;
 };
+
+const handleWindowKeydown = (event: KeyboardEvent) => {
+    if (event.key === 'Escape' && selectedPlanId.value !== null) {
+        closePlanDetails();
+    }
+};
+
+onMounted(() => window.addEventListener('keydown', handleWindowKeydown));
+onUnmounted(() => window.removeEventListener('keydown', handleWindowKeydown));
 
 const confirmToggleActive = (plan: any) => {
     if (plan.is_default && plan.is_active) {
@@ -485,7 +495,7 @@ const handleDelete = () => {
             leave-from-class="opacity-100"
             leave-to-class="opacity-0"
         >
-            <div v-if="selectedPlan" class="fixed inset-0 z-[140] flex items-center justify-center p-4 sm:p-6" @keydown.esc.window="closePlanDetails">
+            <div v-if="selectedPlan" class="fixed inset-0 z-[140] flex items-center justify-center p-4 sm:p-6">
                 <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" @click="closePlanDetails"></div>
 
                 <div

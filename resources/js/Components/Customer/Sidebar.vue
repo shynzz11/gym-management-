@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3';
-import { computed, ref, watch } from 'vue';
 import { LayoutDashboard, User, ChevronLeft, LifeBuoy, Wallet, Zap } from 'lucide-vue-next';
+import { computed, ref, watch } from 'vue';
 import customer from '@/routes/customer';
 
-const props = defineProps<{
+defineProps<{
     isCollapsed: boolean;
 }>();
 
