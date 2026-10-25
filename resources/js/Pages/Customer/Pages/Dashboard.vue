@@ -198,6 +198,7 @@ const checkoutAmountBdt = computed(() => {
 
     return Number(plan.price);
 });
+const checkoutDisplayAmount = computed(() => formatCurrency(checkoutAmountBdt.value));
 const isFreeCheckoutPlan = computed(() => checkoutAmountBdt.value <= 0);
 const systemCurrencyCode = computed(() => {
     return String(props.paymentOptions?.currency_code ?? 'INR').trim().toUpperCase();
@@ -1083,10 +1084,13 @@ onBeforeUnmount(() => {
                                         <div class="rounded-xl border border-slate-200 bg-white px-3 py-2 dark:border-slate-700 dark:bg-slate-900">
                                             <p class="text-[10px] font-bold tracking-widest text-slate-500 uppercase">{{ __('Price') }}</p>
                                             <div class="mt-1 flex items-center gap-2">
-                                                <p v-if="isOfferActive(checkoutPlan)" class="text-sm font-extrabold text-orange-600 dark:text-orange-400">
-                                                    {{ formatCurrency(checkoutPlan.offer_price) }}
+                                                <p
+                                                    v-if="isOfferActive(checkoutPlan)"
+                                                    class="text-sm font-extrabold text-orange-600 dark:text-orange-400"
+                                                >
+                                                    {{ checkoutDisplayAmount }}
                                                 </p>
-                                                <p 
+                                                <p
                                                     class="text-sm font-extrabold text-slate-900 dark:text-white"
                                                     :class="{ 'text-xs opacity-50 line-through': isOfferActive(checkoutPlan) }"
                                                 >
