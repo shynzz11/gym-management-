@@ -1,0 +1,113 @@
+@import 'tailwindcss';
+@plugin '@tailwindcss/typography';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme inline {
+    --font-sans: var(--font-primary), ui-sans-serif, system-ui, sans-serif;
+
+    --color-primary: var(--brand-primary);
+    --color-primary-50: color-mix(in srgb, var(--brand-primary), white 95%);
+    --color-primary-100: color-mix(in srgb, var(--brand-primary), white 90%);
+    --color-primary-200: color-mix(in srgb, var(--brand-primary), white 80%);
+    --color-primary-300: color-mix(in srgb, var(--brand-primary), white 60%);
+    --color-primary-400: color-mix(in srgb, var(--brand-primary), white 40%);
+    --color-primary-500: var(--brand-primary);
+    --color-primary-600: color-mix(in srgb, var(--brand-primary), black 10%);
+    --color-primary-700: color-mix(in srgb, var(--brand-primary), black 20%);
+    --color-primary-800: color-mix(in srgb, var(--brand-primary), black 30%);
+    --color-primary-900: color-mix(in srgb, var(--brand-primary), black 40%);
+
+    --color-brand: var(--brand-primary);
+    --color-brand-50: color-mix(in srgb, var(--brand-primary), white 95%);
+    --color-brand-100: color-mix(in srgb, var(--brand-primary), white 90%);
+    --color-brand-200: color-mix(in srgb, var(--brand-primary), white 80%);
+    --color-brand-300: color-mix(in srgb, var(--brand-primary), white 60%);
+    --color-brand-400: color-mix(in srgb, var(--brand-primary), white 40%);
+    --color-brand-500: var(--brand-primary);
+    --color-brand-600: color-mix(in srgb, var(--brand-primary), black 10%);
+    --color-brand-700: color-mix(in srgb, var(--brand-primary), black 20%);
+    --color-brand-800: color-mix(in srgb, var(--brand-primary), black 30%);
+    --color-brand-900: color-mix(in srgb, var(--brand-primary), black 40%);
+
+    --color-secondary: var(--brand-secondary);
+    --color-success: var(--brand-success);
+    --color-danger: var(--brand-danger);
+    --color-warning: var(--brand-warning);
+    --color-info: var(--brand-info);
+
+    /* Admin Theme */
+    --color-admin-sidebar: var(--admin-sidebar-bg);
+    --color-admin-sidebar-dark: var(--admin-sidebar-bg-dark);
+    --color-admin-sidebar-border: var(--admin-sidebar-border);
+    --color-admin-sidebar-border-dark: var(--admin-sidebar-border-dark);
+
+    --color-admin-sidebar-rail: var(--admin-sidebar-rail-bg);
+    --color-admin-sidebar-rail-dark: var(--admin-sidebar-rail-bg-dark);
+
+    --color-admin-header: var(--admin-header-bg);
+    --color-admin-header-dark: var(--admin-header-bg-dark);
+
+    --color-admin-active: var(--admin-active-item-bg);
+    --color-admin-active-text: var(--admin-active-item-text);
+    --color-admin-active-border: var(--admin-active-item-border);
+
+    --color-admin-active-dark: var(--admin-active-item-bg-dark);
+    --color-admin-active-text-dark: var(--admin-active-item-text-dark);
+    --color-admin-active-border-dark: var(--admin-active-item-border-dark);
+
+    --color-admin-content: var(--admin-content-bg);
+    --color-admin-content-dark: var(--admin-content-bg-dark);
+
+    --color-admin-card: var(--admin-card-bg);
+    --color-admin-card-dark: var(--admin-card-bg-dark);
+    --color-admin-card-border: var(--admin-card-border);
+    --color-admin-card-border-dark: var(--admin-card-border-dark);
+}
+
+@layer base {
+    a,
+    button,
+    summary,
+    [role='button'],
+    input[type='button'],
+    input[type='submit'],
+    input[type='reset'],
+    .lucide {
+        cursor: pointer;
+    }
+
+    button:disabled,
+    input[type='button']:disabled,
+    input[type='submit']:disabled,
+    input[type='reset']:disabled,
+    [aria-disabled='true'] {
+        cursor: not-allowed;
+    }
+}
+
+@layer components {
+    .admin-workspace :is(a, button, input[type='button'], input[type='submit'], input[type='reset'])[class*='rounded-2xl']:not([class*='h-']) {
+        min-height: 2.75rem;
+    }
+
+    .scrollbar-thin::-webkit-scrollbar {
+        width: 4px;
+    }
+
+    .scrollbar-thin::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .scrollbar-thin::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 10px;
+    }
+
+    .dark .scrollbar-thin::-webkit-scrollbar-thumb {
+        background: #334155;
+    }
+}
