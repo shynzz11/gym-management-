@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Models\Payment;
 use App\Models\Subscription;
-use App\Notifications\MembershipRenewed;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Carbon;
@@ -144,11 +143,6 @@ class PaymentService
 
         $payment->save();
 
-        if ($transactionType === 'renew') {
-            $payment->unsetRelation('subscription');
-            $payment->load('subscription.user', 'subscription.plan');
-            $payment->subscription?->user?->notify(new MembershipRenewed($payment->subscription, $payment));
-        }
     }
 
     private function applyDeny(Payment $payment, ?string $denialReason): void

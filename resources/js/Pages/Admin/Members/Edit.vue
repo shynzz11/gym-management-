@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
-import { computed, nextTick, onBeforeUnmount, onMounted, PropType, ref } from 'vue';
-import { ChevronRight } from 'lucide-vue-next';
-import admin from '@/routes/admin';
-import { composePhoneFromDialCode, COUNTRY_PHONE_CODES, splitPhoneByDialCode } from '@/lib/countryPhoneCodes';
 import dayjs from 'dayjs';
+import { ChevronRight } from 'lucide-vue-next';
+import type { PropType} from 'vue';
+import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue';
+import AdminLayout from '@/Layouts/AdminLayout.vue';
+import { composePhoneFromDialCode, COUNTRY_PHONE_CODES, splitPhoneByDialCode } from '@/lib/countryPhoneCodes';
+import admin from '@/routes/admin';
 
 const props = defineProps({
     user: Object as PropType<any>,
@@ -299,11 +300,19 @@ const submit = () => {
     }
 
     form
-        .transform((data) => ({
-            ...data,
-            phone: isCustomerUser.value ? combinedPhoneNumber.value : data.phone,
-            role_id: isCustomerUser.value ? null : data.role_id,
-        }))
+        .transform((data) => {
+            if (isCustomerUser.value) {
+                return {
+                    name: data.name,
+                    email: data.email,
+                    address: data.address,
+                    phone: combinedPhoneNumber.value,
+                    role_id: null,
+                };
+            }
+
+            return data;
+        })
         .put(updateUrl.value, {
             onSuccess: () => {
                 form.reset('password', 'password_confirmation');
@@ -501,7 +510,7 @@ const formatPlanDate = (date: string): string => {
                     </div>
 
                     <!-- Password Update Section -->
-                    <div class="border-t border-slate-200 pt-6 dark:border-slate-700">
+                    <div v-if="!isCustomerUser" class="border-t border-slate-200 pt-6 dark:border-slate-700">
                         <button
                             type="button"
                             @click="showPasswordFields = !showPasswordFields"

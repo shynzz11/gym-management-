@@ -602,7 +602,7 @@ const submitPaymentStatusAction = (decision: 'approve' | 'deny'): void => {
                                     <span
                                         class="inline-flex items-center rounded border border-slate-200 px-2 py-1 text-xs tracking-wider text-slate-600 uppercase dark:border-slate-700 dark:text-slate-300"
                                     >
-                                        {{ payment.method || 'Credit/Stripe' }}
+                                        {{ payment.method || 'Manual' }}
                                     </span>
                                 </td>
                                 <td class="p-4">

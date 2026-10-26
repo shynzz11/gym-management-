@@ -25,6 +25,10 @@ class DemoSeeder extends Seeder
      */
     public function run(): void
     {
+        if (app()->isProduction()) {
+            throw new \RuntimeException('This seeder is destructive and is disabled in production.');
+        }
+
         // 1. Cleanup existing tables
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
 
@@ -76,7 +80,7 @@ class DemoSeeder extends Seeder
             if (isset($section['sub_modules'])) {
                 foreach ($section['sub_modules'] as $name => $details) {
                     $permission = Permission::firstOrCreate(['name' => $name]);
-                    if (!in_array($permission->id, $permissionIds)) {
+                    if (! in_array($permission->id, $permissionIds)) {
                         $permissionIds[] = $permission->id;
                     }
                 }
@@ -183,7 +187,7 @@ class DemoSeeder extends Seeder
                 'name' => $p['name'],
                 'price' => $p['price'],
                 'duration_days' => $p['duration'],
-                'description' => 'Demo plan description for ' . $p['name'],
+                'description' => 'Demo plan description for '.$p['name'],
                 'facilities' => $p['facs'],
                 'access_type' => $p['access'],
                 'is_active' => true,

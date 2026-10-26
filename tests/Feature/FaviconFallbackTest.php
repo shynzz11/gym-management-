@@ -14,7 +14,7 @@ uses(RefreshDatabase::class);
 test('it uses system default favicon when branding favicon is not configured', function () {
     $defaultFaviconUrl = 'https://api.dicebear.com/7.x/initials/svg?seed=N';
 
-    $this->get(route('home'))
+    $this->get(route('admin.login'))
         ->assertOk()
         ->assertSee('rel="icon" href="'.$defaultFaviconUrl.'"', false);
 });
@@ -27,7 +27,7 @@ test('it uses branding favicon when a custom url is configured', function () {
         'value' => $faviconUrl,
     ]);
 
-    $this->get(route('home'))
+    $this->get(route('admin.login'))
         ->assertOk()
         ->assertSee('rel="icon" href="'.$faviconUrl.'"', false);
 });

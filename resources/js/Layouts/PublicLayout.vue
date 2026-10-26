@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3';
-import { login, register, contact } from '@/routes';
-import { dashboard as customerDashboard } from '@/routes/customer';
+import { contact } from '@/routes';
 import { dashboard as adminDashboard } from '@/routes/admin';
 import { privacy, terms, about } from '@/routes/legal';
 import ThemeToggle from '@/Components/ThemeToggle.vue';
@@ -25,7 +24,7 @@ const brandTagline = computed(() => businessSettings.value.tagline || 'Next-Gen 
 
 const dashboardUrl = computed(() => {
     if (!user.value) return '#';
-    return user.value.type === 'admin' || user.value.type === 'super-admin' ? adminDashboard.url() : customerDashboard.url();
+    return adminDashboard.url();
 });
 
 const isMobileMenuOpen = ref(false);
@@ -73,20 +72,6 @@ onMounted(() => {
                             class="px-3 py-2 text-sm font-bold text-gray-700 transition-colors hover:text-primary-600 dark:text-gray-200 dark:hover:text-primary-400"
                         >
                             {{ __('Dashboard') }}
-                        </Link>
-                    </template>
-                    <template v-else>
-                        <Link
-                            :href="login.url()"
-                            class="px-3 py-2 text-sm font-bold text-gray-700 transition-colors hover:text-primary-600 dark:text-gray-200 dark:hover:text-primary-400"
-                        >
-                            {{ __('Sign In') }}
-                        </Link>
-                        <Link
-                            :href="register.url()"
-                            class="rounded-full bg-primary-600 px-5 py-2 text-sm font-bold text-white shadow-lg shadow-primary-500/25 transition-all hover:scale-105 hover:bg-primary-700 active:scale-95"
-                        >
-                            {{ __('Join Now') }}
                         </Link>
                     </template>
                 </div>
@@ -137,18 +122,6 @@ onMounted(() => {
                         >
                             {{ __('Dashboard') }}
                         </Link>
-                    </template>
-                    <template v-else>
-                        <Link
-                            :href="login.url()"
-                            class="py-2 text-center text-sm font-semibold text-gray-600 hover:text-primary-600 dark:text-gray-300"
-                            >{{ __('Sign In') }}</Link
-                        >
-                        <Link
-                            :href="register.url()"
-                            class="rounded-full bg-primary-600 px-5 py-2.5 text-center text-sm font-bold text-white shadow-lg transition-all hover:bg-primary-700"
-                            >{{ __('Join Now') }}</Link
-                        >
                     </template>
                 </div>
             </div>

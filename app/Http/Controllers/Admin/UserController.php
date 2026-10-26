@@ -133,6 +133,7 @@ class UserController extends Controller
 
         $data = $request->validated();
         $data['type'] = UserType::CUSTOMER->value;
+        $data['password'] = \Illuminate\Support\Str::random(40);
         $selectedPlanId = $data['plan_id'] ?? null;
         unset($data['role_id']);
         unset($data['plan_id']);

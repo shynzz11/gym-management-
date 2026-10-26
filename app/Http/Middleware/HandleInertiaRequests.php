@@ -112,9 +112,7 @@ class HandleInertiaRequests extends Middleware
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),
                 'error' => fn () => $request->session()->get('error'),
-                'warning' => fn () => str_starts_with($request->route()?->getName() ?? '', 'customer.')
-                    ? $request->session()->get('warning')
-                    : $request->session()->get('admin_warning'),
+                'warning' => fn () => $request->session()->get('admin_warning'),
             ],
         ];
     }

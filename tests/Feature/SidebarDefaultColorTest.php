@@ -5,7 +5,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 uses(RefreshDatabase::class);
 
 test('it uses distinct default colors for sidebar panel and rail', function () {
-    $this->get(route('home'))
+    $this->get(route('admin.login'))
         ->assertOk()
         ->assertSee('--admin-sidebar-bg: #ffffff;', false)
         ->assertSee('--admin-sidebar-bg-dark: #0f172a;', false)

@@ -5,7 +5,6 @@ namespace App\Services;
 use App\Enums\UserType;
 use App\Models\Role;
 use App\Models\User;
-use App\Notifications\WelcomeToIronNest;
 use App\Traits\LogsActivity;
 use Illuminate\Support\Facades\Hash;
 
@@ -69,8 +68,6 @@ class UserService
                 'phone' => $data['phone'] ?? null,
                 'address' => $data['address'] ?? null,
             ]);
-
-            $user->notify(new WelcomeToIronNest);
         }
 
         if (isset($data['roles'])) {

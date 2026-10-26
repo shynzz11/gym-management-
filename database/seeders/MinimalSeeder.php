@@ -21,6 +21,10 @@ class MinimalSeeder extends Seeder
      */
     public function run(): void
     {
+        if (app()->isProduction()) {
+            throw new \RuntimeException('This seeder is destructive and is disabled in production.');
+        }
+
         // 1. Cleanup existing tables
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
 

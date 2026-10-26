@@ -179,8 +179,6 @@
     "Sidebar Icon Color": "Sidebar Icon Color",
     "Sidebar Icon (Dark)": "Sidebar Icon (Dark)",
     "business_settings": "Business Settings",
-    "email_settings": "Email Settings",
-    "payment_gateway_setup": "Payment Gateway",
     "pending_payments": "Pending Payments",
     "gym_management": "Gym Management",
     "customer_list": "Customer List",
@@ -236,10 +234,5 @@
     "Email Us": "Email Us",
     "Call Us": "Call Us",
     "Visit Us": "Visit Us",
-    "Test Mail Delivery": "Test Mail Delivery",
-    "A test email will be sent using the SMTP configuration above.": "A test email will be sent using the SMTP configuration above.",
-    "Send Test Email": "Send Test Email",
-    "Terms And Conditions": "Terms & Conditions",
-    "Webhook Secret (Optional)": "Webhook Secret (Optional)",
-    "Stripe checkout still works without webhook using success callback verification.": "Stripe checkout still works without webhook using success callback verification."
+    "Terms And Conditions": "Terms & Conditions"
 }

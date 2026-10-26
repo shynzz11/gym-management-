@@ -27,10 +27,6 @@ class Permissions
 
     public const BUSINESS_LOGIC = 'business_logic';
 
-    public const EMAIL_SETTINGS = 'email_settings';
-
-    public const PAYMENT_GATEWAY_SETUP = 'payment_gateway_setup';
-
     // Section: Gym Management
     public const SECTION_GYM = 'gym_section';
 
@@ -167,19 +163,6 @@ class Permissions
                         'route' => 'admin.activity_logs.index',
                         'icon' => 'History',
                     ],
-                    self::EMAIL_SETTINGS => [
-                        'label' => 'email_settings',
-                        'description' => 'Configure SMTP and mail delivery settings',
-                        'route' => 'admin.business.email.index',
-                        'icon' => 'Mail',
-                    ],
-                    self::PAYMENT_GATEWAY_SETUP => [
-                        'label' => 'payment_gateway_setup',
-                        'description' => 'Configure SSLCommerz and Stripe credentials and sandbox mode.',
-                        'route' => 'admin.business.payment-settings.index',
-                        'icon' => 'CreditCard',
-                    ],
-
                 ],
             ],
         ];

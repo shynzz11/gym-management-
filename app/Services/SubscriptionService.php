@@ -5,7 +5,6 @@ namespace App\Services;
 use App\Models\Payment;
 use App\Models\Plan;
 use App\Models\Subscription;
-use App\Notifications\MembershipRenewed;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
@@ -15,8 +14,6 @@ use Illuminate\Validation\ValidationException;
 class SubscriptionService
 {
     private ?bool $supportsPaymentTransactionType = null;
-
-    public function __construct(protected \App\Services\NotificationService $notificationService) {}
 
     public function getAll(string $search = '', int $perPage = 10): LengthAwarePaginator
     {
@@ -160,13 +157,6 @@ class SubscriptionService
                 ),
             );
 
-            $this->notificationService->info(
-                $subscription->user_id,
-                'Subscription Scheduled',
-                "Your subscription to the {$plan->name} plan is scheduled to start on {$startDate->format('M d, Y')}.",
-                ['type' => 'subscription', 'id' => $subscription->id],
-                '/customer/dashboard'
-            );
         } elseif ($subscription->status === 'active') {
             $subscription->payments()->create(
                 $this->buildPaymentPayload(
@@ -176,22 +166,6 @@ class SubscriptionService
                 ),
             );
 
-            $this->notificationService->markExpiryNotificationsAsRead($subscription->user_id);
-            $this->notificationService->success(
-                $subscription->user_id,
-                'Subscription Activated',
-                "Your subscription to the {$plan->name} plan is now active.",
-                ['type' => 'subscription', 'id' => $subscription->id],
-                '/customer/dashboard'
-            );
-        } elseif ($subscription->status === 'pending') {
-            $this->notificationService->info(
-                $subscription->user_id,
-                'Subscription Pending',
-                "Your subscription to the {$plan->name} plan is pending approval.",
-                ['type' => 'subscription', 'id' => $subscription->id],
-                '/customer/dashboard'
-            );
         }
 
         return $subscription;
@@ -211,36 +185,12 @@ class SubscriptionService
             'scheduled_activation' => $isFutureStart,
         ]);
 
-        $payment = $subscription->payments()->create(
+        $subscription->payments()->create(
             $this->buildPaymentPayload(
                 amount: $plan->price,
                 method: $paymentMethod,
                 transactionType: 'renew',
             ),
-        );
-
-        if ($isFutureStart) {
-            $this->notificationService->info(
-                $subscription->user_id,
-                'Membership Renewal Scheduled',
-                "Your {$plan->name} membership renewal is scheduled to start on {$startDate->format('M d, Y')}.",
-                ['type' => 'subscription', 'id' => $subscription->id],
-                '/customer/dashboard'
-            );
-
-            return $subscription->refresh();
-        }
-
-        $subscription->loadMissing('user', 'plan');
-        $subscription->user?->notify(new MembershipRenewed($subscription, $payment));
-
-        $this->notificationService->markExpiryNotificationsAsRead($subscription->user_id);
-        $this->notificationService->success(
-            $subscription->user_id,
-            'Subscription Renewed',
-            "Your subscription to the {$plan->name} plan has been successfully renewed.",
-            ['type' => 'subscription', 'id' => $subscription->id],
-            '/customer/dashboard'
         );
 
         return $subscription->refresh();
@@ -271,7 +221,7 @@ class SubscriptionService
             'end_date' => $renewedEndDate,
         ]);
 
-        $payment = $subscription->payments()->create(
+        $subscription->payments()->create(
             $this->buildPaymentPayload(
                 amount: $plan->price,
                 method: $paymentMethod,
@@ -279,25 +229,11 @@ class SubscriptionService
             ),
         );
 
-        $subscription->loadMissing('user', 'plan');
-        $subscription->user?->notify(new MembershipRenewed($subscription, $payment));
-
-        $this->notificationService->markExpiryNotificationsAsRead($subscription->user_id);
-        $this->notificationService->success(
-            $subscription->user_id,
-            'Subscription Renewed',
-            "Your subscription to the {$plan->name} plan has been successfully renewed.",
-            ['type' => 'subscription', 'id' => $subscription->id],
-            '/customer/dashboard'
-        );
-
         return $subscription->refresh();
     }
 
     public function updateStatus(Subscription $subscription, string $status): Subscription
     {
-        $wasActive = $subscription->status === 'active';
-
         if ($status === 'active' && $subscription->start_date->isAfter(now()->startOfDay())) {
             $subscription->update([
                 'scheduled_activation' => true,
@@ -345,54 +281,17 @@ class SubscriptionService
 
             if ($pendingPayment) {
                 $pendingPayment->update(['status' => 'completed']);
-                $renewalPayment = $pendingPayment->refresh();
             } elseif (! $subscription->payments()->exists()) {
                 $transactionType = $this->resolveManualTransactionType($subscription);
-                $renewalPayment = $subscription->payments()->create(
+                $subscription->payments()->create(
                     $this->buildPaymentPayload(
                         amount: $subscription->plan->price,
                         method: 'manual',
                         transactionType: $transactionType,
                     ),
                 );
-            } elseif ($this->paymentSupportsTransactionType()) {
-                $renewalPayment = $subscription->payments()
-                    ->where('status', 'completed')
-                    ->where('transaction_type', 'renew')
-                    ->latest()
-                    ->first();
-            } else {
-                $renewalPayment = null;
             }
 
-            if (! $wasActive && ($renewalPayment?->transaction_type ?? null) === 'renew') {
-                $subscription->loadMissing('user', 'plan');
-                $subscription->user?->notify(new MembershipRenewed($subscription, $renewalPayment));
-            }
-
-            $this->notificationService->markExpiryNotificationsAsRead($subscription->user_id);
-            $this->notificationService->success(
-                $subscription->user_id,
-                'Subscription Approved',
-                "Your pending subscription to the {$subscription->plan->name} plan has been approved and is now active.",
-                ['type' => 'subscription', 'id' => $subscription->id],
-                '/customer/dashboard'
-            );
-        } elseif ($status === 'expired') {
-            $this->notificationService->warning(
-                $subscription->user_id,
-                'Subscription Expired',
-                "Your subscription to the {$subscription->plan->name} plan has expired.",
-                ['type' => 'subscription', 'id' => $subscription->id],
-                '/customer/dashboard'
-            );
-        } elseif ($status === 'denied') {
-            $this->notificationService->error(
-                $subscription->user_id,
-                'Subscription Denied',
-                "Your pending subscription application or payment for the {$subscription->plan->name} plan was denied.",
-                ['type' => 'subscription', 'id' => $subscription->id]
-            );
         }
 
         return $subscription;

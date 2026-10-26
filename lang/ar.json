@@ -241,8 +241,6 @@
     "Sidebar Icon Color": "لون أيقونة الشريط الجانبي",
     "Sidebar Icon (Dark)": "أيقونة الشريط الجانبي (داكن)",
     "business_settings": "إعدادات العمل",
-    "email_settings": "إعدادات البريد الإلكتروني",
-    "payment_gateway_setup": "بوابة الدفع",
     "pending_payments": "المدفوعات المعلقة",
     "gym_management": "إدارة الجيم",
     "customer_list": "قائمة العملاء",
@@ -304,9 +302,6 @@
     "Just now": "الآن",
     "legal_management": "المركز القانوني",
     "Legal Center": "المركز القانوني",
-    "Test Mail Delivery": "اختبار إرسال البريد",
-    "A test email will be sent using the SMTP configuration above.": "سيتم إرسال بريد إلكتروني تجريبي باستخدام إعدادات SMTP أعلاه.",
-    "Send Test Email": "إرسال بريد تجريبي",
     "Privacy Policy": "سياسة الخصوصية",
     "Terms & Conditions": "الشروط والأحكام",
     "About Us": "معلومات عنا",
@@ -328,7 +323,5 @@
     "If you have any questions about this policy, please": "إذا كان لديك أي أسئلة حول هذه السياسة، يرجى",
     "contact us": "الاتصال بنا",
     "Back to Home": "العودة للرئيسية",
-    "Terms And Conditions": "الشروط والأحكام",
-    "Webhook Secret (Optional)": "سر Webhook (اختياري)",
-    "Stripe checkout still works without webhook using success callback verification.": "يعمل الدفع عبر Stripe بدون Webhook باستخدام التحقق من رابط النجاح."
+    "Terms And Conditions": "الشروط والأحكام"
 }
