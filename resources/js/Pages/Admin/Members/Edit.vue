@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
-import { computed, nextTick, onBeforeUnmount, onMounted, PropType, ref } from 'vue';
-import { ChevronRight } from 'lucide-vue-next';
-import admin from '@/routes/admin';
-import { composePhoneFromDialCode, COUNTRY_PHONE_CODES, splitPhoneByDialCode } from '@/lib/countryPhoneCodes';
 import dayjs from 'dayjs';
+import { ChevronRight } from 'lucide-vue-next';
+import type { PropType} from 'vue';
+import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue';
+import AdminLayout from '@/Layouts/AdminLayout.vue';
+import { composePhoneFromDialCode, COUNTRY_PHONE_CODES, splitPhoneByDialCode } from '@/lib/countryPhoneCodes';
+import admin from '@/routes/admin';
 
 const props = defineProps({
     user: Object as PropType<any>,
@@ -301,10 +302,10 @@ const submit = () => {
     form
         .transform((data) => {
             if (isCustomerUser.value) {
-                const { password, password_confirmation, ...customerData } = data;
-
                 return {
-                    ...customerData,
+                    name: data.name,
+                    email: data.email,
+                    address: data.address,
                     phone: combinedPhoneNumber.value,
                     role_id: null,
                 };
