@@ -15,6 +15,10 @@ class AdminUserSeeder extends Seeder
      */
     public function run(): void
     {
+        if (app()->isProduction()) {
+            throw new \RuntimeException('Demo admin seeding is disabled in production.');
+        }
+
         // 1. Super Admin
         $superAdmin = User::firstOrCreate(
             ['email' => 'admin@admin.com'],
@@ -25,12 +29,12 @@ class AdminUserSeeder extends Seeder
                 'email_verified_at' => now(),
             ]
         );
-        
+
         if ($superAdmin->type !== UserType::SUPER_ADMIN) {
-             $superAdmin->update(['type' => UserType::SUPER_ADMIN]);
+            $superAdmin->update(['type' => UserType::SUPER_ADMIN]);
         }
 
-        if (!$superAdmin->adminProfile) {
+        if (! $superAdmin->adminProfile) {
             $superAdmin->adminProfile()->create();
         }
 
@@ -46,16 +50,16 @@ class AdminUserSeeder extends Seeder
                     'email_verified_at' => now(),
                 ]
             );
-            
+
             if ($manager->type !== UserType::ADMIN) {
-                 $manager->update(['type' => UserType::ADMIN]);
+                $manager->update(['type' => UserType::ADMIN]);
             }
-            
-            if (!$manager->adminProfile) {
+
+            if (! $manager->adminProfile) {
                 $manager->adminProfile()->create();
             }
 
-            if (!$manager->roles()->where('role_id', $managerRole->id)->exists()) {
+            if (! $manager->roles()->where('role_id', $managerRole->id)->exists()) {
                 $manager->roles()->attach($managerRole);
             }
         }

@@ -28,22 +28,19 @@ class AdminAuthTest extends TestCase
         $response->assertInertia(fn ($page) => $page->component('Admin/Auth/Login'));
     }
 
-    public function test_admin_can_register()
+    public function test_admin_registration_is_not_public()
     {
-        $response = $this->post('/admin/register', [
-            'name' => 'Test Admin',
-            'email' => 'admin@example.com',
-            'password' => 'password',
-            'password_confirmation' => 'password',
-        ]);
+        $this->get('/admin/register')->assertNotFound();
+        $this->post('/admin/register')->assertNotFound();
+    }
 
-        $this->assertAuthenticated('admin');
-        $response->assertRedirect(route('admin.dashboard'));
-
-        $user = User::where('email', 'admin@example.com')->first();
-        $this->assertNotNull($user);
-        $this->assertSame(UserType::ADMIN, $user->type);
-        $this->assertTrue($user->roles()->where('slug', 'admin')->exists());
+    public function test_customer_portal_routes_are_not_public()
+    {
+        $this->get('/customer/login')->assertNotFound();
+        $this->post('/customer/login')->assertNotFound();
+        $this->get('/customer/register')->assertNotFound();
+        $this->post('/customer/register')->assertNotFound();
+        $this->get('/customer/dashboard')->assertNotFound();
     }
 
     public function test_admin_can_login()
@@ -62,5 +59,21 @@ class AdminAuthTest extends TestCase
 
         $this->assertAuthenticatedAs($user, 'admin');
         $response->assertRedirect(route('admin.dashboard'));
+    }
+
+    public function test_customer_cannot_log_in_through_the_admin_guard()
+    {
+        $customer = User::factory()->create([
+            'password' => bcrypt('password'),
+            'type' => UserType::CUSTOMER,
+        ]);
+
+        $response = $this->post('/admin/login', [
+            'email' => $customer->email,
+            'password' => 'password',
+        ]);
+
+        $this->assertGuest('admin');
+        $response->assertSessionHasErrors('email');
     }
 }

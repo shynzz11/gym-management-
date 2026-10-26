@@ -8,9 +8,6 @@ test('all page titles follow page name plus dynamic business name', function () 
     $brandingPage = file_get_contents(__DIR__.'/../../resources/js/Pages/Admin/Business/Branding.vue');
     $adminDashboardPage = file_get_contents(__DIR__.'/../../resources/js/Pages/Admin/Pages/Dashboard.vue');
     $adminLoginPage = file_get_contents(__DIR__.'/../../resources/js/Pages/Admin/Auth/Login.vue');
-    $guestLoginPage = file_get_contents(__DIR__.'/../../resources/js/Pages/Guest/Pages/Login.vue');
-    $guestRegisterPage = file_get_contents(__DIR__.'/../../resources/js/Pages/Guest/Pages/Register.vue');
-    $guestLandingPage = file_get_contents(__DIR__.'/../../resources/js/Pages/Guest/LandingPage.vue');
 
     expect($appBootstrap)
         ->toContain('let appName = getInitialPageName() || fallbackAppName;')
@@ -49,16 +46,4 @@ test('all page titles follow page name plus dynamic business name', function () 
     expect($adminLoginPage)
         ->toContain('<Head :title="__(\'Admin Login\')" />')
         ->not->toContain('`${appName} | Admin Login`');
-
-    expect($guestLoginPage)
-        ->toContain('<Head :title="__(\'Login\')" />')
-        ->not->toContain('`${appName} | Login`');
-
-    expect($guestRegisterPage)
-        ->toContain('<Head :title="__(\'Register\')" />')
-        ->not->toContain('`${brandName} | Register`');
-
-    expect($guestLandingPage)
-        ->toContain('<Head :title="__(\'Transform Your Body\')" />')
-        ->not->toContain('<Head title="GymOS - Transform Your Body" />');
 });

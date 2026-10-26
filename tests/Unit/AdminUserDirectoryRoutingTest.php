@@ -8,6 +8,7 @@ test('admin users and customers directories are wired with separate filters and 
     $storeUserRequest = file_get_contents(__DIR__.'/../../app/Http/Requests/Admin/StoreUserRequest.php');
     $membersIndexPage = file_get_contents(__DIR__.'/../../resources/js/Pages/Admin/Members/Index.vue');
     $membersCreatePage = file_get_contents(__DIR__.'/../../resources/js/Pages/Admin/Members/Create.vue');
+    $membersEditPage = file_get_contents(__DIR__.'/../../resources/js/Pages/Admin/Members/Edit.vue');
     $adminSidebar = file_get_contents(__DIR__.'/../../resources/js/Components/Admin/Sidebar.vue');
 
     expect($userController)
@@ -47,7 +48,8 @@ test('admin users and customers directories are wired with separate filters and 
 
     expect($storeUserRequest)
         ->toContain("\$isCustomerCreateRoute = \$this->routeIs('admin.customers.store');")
-        ->toContain("'password' => 'required|string|min:8|confirmed'")
+        ->toContain('if (! $isCustomerCreateRoute)')
+        ->toContain("\$rules['password'] = 'required|string|min:8|confirmed';")
         ->toContain("'phone' => \$isCustomerCreateRoute")
         ->toContain("Rule::unique('customer_profiles', 'phone')")
         ->toContain("'plan_id' => [")
@@ -102,7 +104,12 @@ test('admin users and customers directories are wired with separate filters and 
         ->toContain("{{ __('Select Plan (Optional)') }}")
         ->toContain('v-model="form.plan_id"')
         ->toContain('const storeUrl = computed(() => (isCustomerDirectory.value ? admin.customers.store.url() : admin.staff.store.url()));')
+        ->toContain('<div v-if="!isCustomerDirectory" class="grid grid-cols-1 gap-6 sm:grid-cols-2">')
         ->toContain("isCustomerDirectory ? __('Create Customer') : __('Create Staff')");
+
+    expect($membersEditPage)
+        ->toContain('<div v-if="!isCustomerUser" class="border-t border-slate-200 pt-6 dark:border-slate-700">')
+        ->toContain('phone: combinedPhoneNumber.value');
 
     expect($adminSidebar)->toContain("url.startsWith('/admin/customers')");
 });

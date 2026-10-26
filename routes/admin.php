@@ -5,11 +5,9 @@ use App\Http\Controllers\Admin\Auth\AuthController;
 use App\Http\Controllers\Admin\BusinessLogicController;
 use App\Http\Controllers\Admin\BusinessSettingController;
 use App\Http\Controllers\Admin\DashboardController;
-use App\Http\Controllers\Admin\EmailSettingsController;
 use App\Http\Controllers\Admin\LegalController;
 use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\PaymentController;
-use App\Http\Controllers\Admin\PaymentSettingsController;
 use App\Http\Controllers\Admin\PayrollController;
 use App\Http\Controllers\Admin\PlanAccessTypeController;
 use App\Http\Controllers\Admin\PlanController;
@@ -23,9 +21,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest:admin')->prefix('admin')->name('admin.')->group(function () {
     Route::get('login', [AuthController::class, 'showLogin'])->name('login');
-    Route::post('login', [AuthController::class, 'storeLogin']);
-    Route::get('register', [AuthController::class, 'showRegister'])->name('register');
-    Route::post('register', [AuthController::class, 'storeRegister']);
+    Route::post('login', [AuthController::class, 'storeLogin'])->middleware('throttle:5,1');
 });
 
 Route::middleware(['auth:admin', 'admin'])->prefix('admin')->name('admin.')->group(function () {
@@ -80,12 +76,6 @@ Route::middleware(['auth:admin', 'admin'])->prefix('admin')->name('admin.')->gro
 
     Route::get('/business/settings', [BusinessLogicController::class, 'index'])->name('business.settings.index');
     Route::post('/business/settings', [BusinessLogicController::class, 'update'])->name('business.settings.update');
-
-    Route::get('/business/email', [EmailSettingsController::class, 'index'])->name('business.email.index');
-    Route::post('/business/email', [EmailSettingsController::class, 'update'])->name('business.email.update');
-    Route::post('/business/email/test', [EmailSettingsController::class, 'sendTest'])->name('business.email.test');
-    Route::get('/business/payment-settings', [PaymentSettingsController::class, 'index'])->name('business.payment-settings.index');
-    Route::post('/business/payment-settings', [PaymentSettingsController::class, 'update'])->name('business.payment-settings.update');
 
     // Notifications
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');

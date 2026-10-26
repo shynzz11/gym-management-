@@ -24,10 +24,9 @@ class StoreUserRequest extends FormRequest
     {
         $isCustomerCreateRoute = $this->routeIs('admin.customers.store');
 
-        return [
+        $rules = [
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
             'role_id' => $isCustomerCreateRoute ? 'nullable|exists:roles,id' : 'required|exists:roles,id',
             'phone' => $isCustomerCreateRoute
                 ? ['required', 'string', 'max:30', Rule::unique('customer_profiles', 'phone')]
@@ -39,5 +38,11 @@ class StoreUserRequest extends FormRequest
             ],
             'brand_id' => 'nullable|exists:brands,id',
         ];
+
+        if (! $isCustomerCreateRoute) {
+            $rules['password'] = 'required|string|min:8|confirmed';
+        }
+
+        return $rules;
     }
 }

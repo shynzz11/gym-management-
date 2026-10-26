@@ -309,11 +309,19 @@ const submit = () => {
     }
 
     form
-        .transform((data) => ({
-            ...data,
-            phone: isCustomerDirectory.value ? combinedPhoneNumber.value : data.phone,
-            role_id: isCustomerDirectory.value ? null : data.role_id,
-        }))
+        .transform((data) => {
+            if (isCustomerDirectory.value) {
+                const { password, password_confirmation, ...customerData } = data;
+
+                return {
+                    ...customerData,
+                    phone: combinedPhoneNumber.value,
+                    role_id: null,
+                };
+            }
+
+            return data;
+        })
         .post(storeUrl.value, {
             onSuccess: () => {
                 form.reset();
@@ -496,7 +504,7 @@ const submit = () => {
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                    <div v-if="!isCustomerDirectory" class="grid grid-cols-1 gap-6 sm:grid-cols-2">
                         <div>
                             <label class="mb-2 block text-xs font-bold text-slate-600 dark:text-slate-400">{{ __('Password') }}</label>
                             <div class="relative">

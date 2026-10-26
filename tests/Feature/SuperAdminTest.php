@@ -17,22 +17,6 @@ beforeEach(function () {
         'status' => 'active',
     ]);
 
-    $this->admin = User::factory()->create([
-        'type' => UserType::ADMIN,
-        'status' => 'active',
-    ]);
-});
-
-test('Supreme Power: Super Admin can access email settings while regular admin cannot', function () {
-    // Assert Super Admin can access
-    $this->actingAs($this->superAdmin, 'admin')
-        ->get(route('admin.business.email.index'))
-        ->assertStatus(200);
-
-    // Assert Regular Admin (without specific permission) is blocked
-    $this->actingAs($this->admin, 'admin')
-        ->get(route('admin.business.email.index'))
-        ->assertStatus(403);
 });
 
 test('Hard-Coding Protection: Cannot delete super admin user (returns 403)', function () {
@@ -69,23 +53,4 @@ test('Auto-Deactivation: check-expiry command updates expired member statuses', 
         $subscription = Subscription::where('user_id', $member->id)->first();
         expect($subscription->status)->toBe('expired');
     }
-});
-
-test('Middleware: Expired member can access dashboard and receives warning session flash', function () {
-    $member = User::factory()->create(['type' => UserType::CUSTOMER]);
-
-    // Create active subscription that should expire while processing request
-    Subscription::factory()->create([
-        'user_id' => $member->id,
-        'status' => 'active',
-        'end_date' => now()->subDay(),
-    ]);
-
-    $this->actingAs($member, 'web')
-        ->get(route('customer.dashboard'))
-        ->assertStatus(200)
-        ->assertSessionHas('warning');
-
-    $subscription = Subscription::query()->where('user_id', $member->id)->first();
-    expect($subscription?->status)->toBe('expired');
 });

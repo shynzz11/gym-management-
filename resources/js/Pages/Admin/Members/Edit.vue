@@ -299,11 +299,19 @@ const submit = () => {
     }
 
     form
-        .transform((data) => ({
-            ...data,
-            phone: isCustomerUser.value ? combinedPhoneNumber.value : data.phone,
-            role_id: isCustomerUser.value ? null : data.role_id,
-        }))
+        .transform((data) => {
+            if (isCustomerUser.value) {
+                const { password, password_confirmation, ...customerData } = data;
+
+                return {
+                    ...customerData,
+                    phone: combinedPhoneNumber.value,
+                    role_id: null,
+                };
+            }
+
+            return data;
+        })
         .put(updateUrl.value, {
             onSuccess: () => {
                 form.reset('password', 'password_confirmation');
@@ -501,7 +509,7 @@ const formatPlanDate = (date: string): string => {
                     </div>
 
                     <!-- Password Update Section -->
-                    <div class="border-t border-slate-200 pt-6 dark:border-slate-700">
+                    <div v-if="!isCustomerUser" class="border-t border-slate-200 pt-6 dark:border-slate-700">
                         <button
                             type="button"
                             @click="showPasswordFields = !showPasswordFields"

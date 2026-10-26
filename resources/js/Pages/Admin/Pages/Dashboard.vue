@@ -52,7 +52,7 @@ const formatDate = (date: string): string => {
 };
 
 const whatsappUrl = (member: ExpiringMember): string => {
-    const message = `Hello ${member.name},\nYour membership at IRON-NEST is valid until ${formatDate(member.end_date)}. We would love to see you continue your fitness journey with us! You can easily pay at the counter next time you drop by.\nPls ignore if already renewed. Thank you!`;
+    const message = `Hello ${member.name},\nYour membership at ${businessName.value} is valid until ${formatDate(member.end_date)}. We would love to see you continue your fitness journey with us! You can easily pay at the counter next time you drop by.\nPls ignore if already renewed. Thank you!`;
 
     return `https://wa.me/${member.phone}?text=${encodeURIComponent(message)}`;
 };

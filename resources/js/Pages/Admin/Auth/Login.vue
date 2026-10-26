@@ -48,11 +48,6 @@ const togglePassword = () => {
     showPassword.value = !showPassword.value;
 };
 
-const fillDemoCredentials = (email: string, pass: string) => {
-    form.email = email;
-    form.password = pass;
-    form.remember = true;
-};
 </script>
 
 <template>
@@ -272,28 +267,6 @@ const fillDemoCredentials = (email: string, pass: string) => {
                         </svg>
                     </button>
                 </form>
-
-                <!-- Demo Mode Helper Widget -->
-                <div v-if="$page.props.is_demo_mode" class="mt-8 rounded-2xl border border-slate-200 bg-white p-5 transition-all hover:border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:hover:border-slate-600">
-                    <div class="mb-3 flex items-center gap-2 font-bold tracking-widest text-slate-500 uppercase dark:text-slate-400">
-                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"></path>
-                        </svg>
-                        <span class="text-[10px]">Demo Account</span>
-                    </div>
-                    <div class="space-y-2">
-                        <button type="button" @click="fillDemoCredentials('admin@admin.com', '12345678')" class="group relative flex w-full cursor-pointer flex-col items-start rounded-xl bg-slate-50 p-3 text-left transition-colors hover:bg-slate-100 dark:bg-slate-700/30 dark:hover:bg-slate-700/50">
-                            <div class="flex w-full items-center justify-between">
-                                <span class="text-base font-bold text-slate-800 dark:text-white">Super Admin</span>
-                                <span class="rounded bg-primary-100 px-3 py-1 text-xs font-bold text-primary-700 opacity-0 transition-opacity group-hover:bg-primary-200 group-hover:opacity-100 dark:bg-primary-900/50 dark:text-primary-300 dark:group-hover:bg-primary-800/80">
-                                    Auto-fill
-                                </span>
-                            </div>
-                            <span class="text-sm font-medium text-slate-500 dark:text-slate-400">Email: admin@admin.com</span>
-                            <span class="text-sm font-medium text-slate-500 dark:text-slate-400">Pass: 12345678</span>
-                        </button>
-                    </div>
-                </div>
             </div>
         </div>
     </div>

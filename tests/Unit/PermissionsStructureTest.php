@@ -22,14 +22,3 @@ test('activity log is grouped under business settings section', function () {
         ->and($permissions[Permissions::SECTION_BUSINESS]['sub_modules'][Permissions::ACTIVITY_LOG]['route'])
         ->toBe('admin.activity_logs.index');
 });
-
-test('payment gateway setup is grouped under business settings section', function () {
-    $permissions = Permissions::getAll();
-
-    expect($permissions[Permissions::SECTION_BUSINESS]['sub_modules'])
-        ->toHaveKey(Permissions::PAYMENT_GATEWAY_SETUP)
-        ->and($permissions[Permissions::SECTION_BUSINESS]['sub_modules'][Permissions::PAYMENT_GATEWAY_SETUP]['route'])
-        ->toBe('admin.business.payment-settings.index')
-        ->and($permissions[Permissions::SECTION_BUSINESS]['sub_modules'][Permissions::PAYMENT_GATEWAY_SETUP]['icon'])
-        ->toBe('CreditCard');
-});

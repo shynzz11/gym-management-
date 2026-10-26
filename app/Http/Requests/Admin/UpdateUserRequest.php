@@ -38,7 +38,7 @@ class UpdateUserRequest extends FormRequest
                 ? ['required', 'string', 'max:30', Rule::unique('customer_profiles', 'phone')->ignore($userId, 'user_id')]
                 : 'nullable|string|max:30',
             'address' => 'nullable|string|max:1000',
-            'password' => 'nullable|string|min:8|confirmed',
+            'password' => $isCustomerUpdateRoute ? 'prohibited' : 'nullable|string|min:8|confirmed',
         ];
     }
 }

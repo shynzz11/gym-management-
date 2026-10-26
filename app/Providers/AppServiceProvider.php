@@ -30,7 +30,6 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->configureDefaults();
         $this->configureGates();
-        app(\App\Services\SmtpSettingsService::class)->applySavedSettings();
 
         // Override config with Business Settings
         // We wrap this in a try-catch or check if table exists to avoid issues during migration
@@ -74,7 +73,6 @@ class AppServiceProvider extends ServiceProvider
 
         // Panel Access
         Gate::define('access-admin-panel', fn (User $user) => $user->isAdmin() || $user->isSuperAdmin());
-        Gate::define('access-customer-panel', fn (User $user) => $user->isCustomer());
 
         foreach (Permissions::getPermissionNames() as $permissionName) {
             Gate::define($permissionName, fn (User $user) => $user->hasPermission($permissionName));
