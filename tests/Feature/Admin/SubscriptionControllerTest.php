@@ -430,3 +430,137 @@ test('can create multiple active subscriptions for different plans', function ()
         'status' => 'active',
     ]);
 });
+
+test('payment records the offer price while a plan offer is active', function () {
+    $customer = User::factory()->create([
+        'type' => UserType::CUSTOMER,
+    ]);
+
+    $plan = Plan::factory()->create([
+        'price' => 1000.00,
+        'is_offer' => true,
+        'offer_price' => 799.00,
+        'offer_ends_at' => now()->addDays(3),
+    ]);
+
+    $this->actingAs($this->superAdmin, 'admin')
+        ->post(route('admin.subscriptions.store'), [
+            'user_id' => $customer->id,
+            'plan_id' => $plan->id,
+            'status' => 'active',
+        ])
+        ->assertRedirect();
+
+    $subscription = Subscription::query()->where('user_id', $customer->id)->firstOrFail();
+
+    $this->assertDatabaseHas('payments', [
+        'subscription_id' => $subscription->id,
+        'amount' => '799.00',
+    ]);
+});
+
+test('payment records the regular price once a plan offer has ended', function () {
+    $customer = User::factory()->create([
+        'type' => UserType::CUSTOMER,
+    ]);
+
+    $plan = Plan::factory()->create([
+        'price' => 1000.00,
+        'is_offer' => true,
+        'offer_price' => 799.00,
+        'offer_ends_at' => now()->subDay(),
+    ]);
+
+    $this->actingAs($this->superAdmin, 'admin')
+        ->post(route('admin.subscriptions.store'), [
+            'user_id' => $customer->id,
+            'plan_id' => $plan->id,
+            'status' => 'active',
+        ])
+        ->assertRedirect();
+
+    $subscription = Subscription::query()->where('user_id', $customer->id)->firstOrFail();
+
+    $this->assertDatabaseHas('payments', [
+        'subscription_id' => $subscription->id,
+        'amount' => '1000.00',
+    ]);
+});
+
+test('renew action payload extends an active membership instead of resetting it', function () {
+    // Mirrors the row "Renew" button, which posts without a start_date.
+    $customer = User::factory()->create([
+        'type' => UserType::CUSTOMER,
+    ]);
+    $plan = Plan::factory()->create([
+        'duration_days' => 30,
+    ]);
+    $startDate = now()->subDays(23)->toDateString();
+    $subscription = Subscription::factory()->create([
+        'user_id' => $customer->id,
+        'plan_id' => $plan->id,
+        'status' => 'active',
+        'start_date' => $startDate,
+        'end_date' => now()->addDays(7)->toDateString(),
+    ]);
+
+    $this->actingAs($this->superAdmin, 'admin')
+        ->post(route('admin.subscriptions.store'), [
+            'user_id' => $customer->id,
+            'plan_id' => $plan->id,
+            'status' => 'active',
+        ])
+        ->assertRedirect()
+        ->assertSessionHas('success', 'Subscription renewed successfully.');
+
+    $subscription->refresh();
+
+    expect($subscription->end_date->toDateString())->toBe(now()->addDays(37)->toDateString())
+        ->and($subscription->start_date->toDateString())->toBe($startDate)
+        ->and($subscription->status)->toBe('active');
+});
+
+test('renew action payload restarts an expired membership from today on the same record', function () {
+    $customer = User::factory()->create([
+        'type' => UserType::CUSTOMER,
+    ]);
+    $plan = Plan::factory()->create([
+        'duration_days' => 30,
+    ]);
+    $subscription = Subscription::factory()->create([
+        'user_id' => $customer->id,
+        'plan_id' => $plan->id,
+        'status' => 'expired',
+        'start_date' => now()->subDays(40)->toDateString(),
+        'end_date' => now()->subDays(10)->toDateString(),
+    ]);
+
+    $this->actingAs($this->superAdmin, 'admin')
+        ->post(route('admin.subscriptions.store'), [
+            'user_id' => $customer->id,
+            'plan_id' => $plan->id,
+            'status' => 'active',
+        ])
+        ->assertRedirect()
+        ->assertSessionHas('success', 'Subscription renewed successfully.');
+
+    $subscription->refresh();
+
+    expect(Subscription::query()->where('user_id', $customer->id)->count())->toBe(1)
+        ->and($subscription->status)->toBe('active')
+        ->and($subscription->start_date->toDateString())->toBe(now()->toDateString())
+        ->and($subscription->end_date->toDateString())->toBe(now()->addDays(30)->toDateString());
+
+    $this->assertDatabaseHas('payments', [
+        'subscription_id' => $subscription->id,
+        'status' => 'completed',
+        'transaction_type' => 'renew',
+    ]);
+});
+
+test('subscriptions page renew button does not send a start date', function () {
+    $page = file_get_contents(resource_path('js/Pages/Admin/Subscriptions/Index.vue'));
+    $renewFunction = str($page)->after('const renewSubscription = (subscription: any) => {')->before('const denySubscription')->toString();
+
+    expect($renewFunction)->not->toContain('start_date:');
+});

@@ -7,7 +7,7 @@ use App\Traits\LogsActivity;
 
 class BrandingService
 {
-    use LogsActivity, \App\Traits\UploadsMedia;
+    use \App\Traits\UploadsMedia, LogsActivity;
 
     public function updateSettings(Brand $brand, array $settings, $logo = null): Brand
     {

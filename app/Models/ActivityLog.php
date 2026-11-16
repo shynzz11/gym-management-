@@ -41,7 +41,7 @@ class ActivityLog extends Model
      */
     public function getStatusAttribute(): string
     {
-        return match($this->event) {
+        return match ($this->event) {
             'created' => 'success',
             'updated' => 'info',
             'deleted' => 'warning',

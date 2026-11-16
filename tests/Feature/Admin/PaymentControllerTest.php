@@ -7,6 +7,7 @@ use App\Models\Subscription;
 use App\Models\User;
 use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Inertia\Testing\AssertableInertia;
 
 uses(RefreshDatabase::class);
 
@@ -140,4 +141,64 @@ test('admin cannot process payment that is not pending', function () {
         'id' => $completedPayment->id,
         'status' => 'completed',
     ]);
+});
+
+test('payments index is paginated', function () {
+    $subscription = Subscription::factory()->create();
+
+    foreach (range(1, 30) as $i) {
+        $subscription->payments()->create([
+            'amount' => 100,
+            'method' => 'cash',
+            'status' => 'completed',
+        ]);
+    }
+
+    $this->actingAs($this->superAdmin, 'admin')
+        ->get(route('admin.payments.index'))
+        ->assertSuccessful()
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->component('Admin/Payments/Index')
+            ->has('payments.data', 25)
+            ->where('payments.total', 30)
+            ->where('payments.last_page', 2)
+        );
+});
+
+test('payments search covers every page and matches customer name or receipt reference', function () {
+    $target = User::factory()->create(['type' => UserType::CUSTOMER, 'name' => 'Ravi Kumar']);
+    $targetSubscription = Subscription::factory()->create(['user_id' => $target->id]);
+    $targetPayment = $targetSubscription->payments()->create([
+        'amount' => 500,
+        'method' => 'cash',
+        'status' => 'completed',
+    ]);
+
+    // Newer payments push the target off the first page.
+    $otherSubscription = Subscription::factory()->create();
+    foreach (range(1, 30) as $i) {
+        $otherSubscription->payments()->create([
+            'amount' => 100,
+            'method' => 'cash',
+            'status' => 'completed',
+        ]);
+    }
+
+    $this->actingAs($this->superAdmin, 'admin')
+        ->get(route('admin.payments.index', ['search' => 'ravi']))
+        ->assertSuccessful()
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('filters.search', 'ravi')
+            ->has('payments.data', 1)
+            ->where('payments.data.0.id', $targetPayment->id)
+        );
+
+    $reference = 'PAY-'.str_pad((string) $targetPayment->id, 6, '0', STR_PAD_LEFT);
+
+    $this->actingAs($this->superAdmin, 'admin')
+        ->get(route('admin.payments.index', ['search' => $reference]))
+        ->assertSuccessful()
+        ->assertInertia(fn (AssertableInertia $page) => $page
+            ->where('payments.data', fn ($payments) => collect($payments)->pluck('id')->contains($targetPayment->id))
+        );
 });

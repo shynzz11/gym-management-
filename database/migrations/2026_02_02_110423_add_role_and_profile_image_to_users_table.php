@@ -12,10 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            if (!Schema::hasColumn('users', 'role_id')) {
+            if (! Schema::hasColumn('users', 'role_id')) {
                 $table->foreignId('role_id')->nullable()->constrained()->nullOnDelete()->after('id');
             }
-            if (!Schema::hasColumn('users', 'profile_image')) {
+            if (! Schema::hasColumn('users', 'profile_image')) {
                 $table->string('profile_image')->nullable()->after('email');
             }
         });

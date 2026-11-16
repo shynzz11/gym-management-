@@ -16,7 +16,6 @@ class SetLocale
      */
     public function handle(Request $request, Closure $next): Response
     {
-        \Illuminate\Support\Facades\Log::info("SetLocale Middleware: Running");
         LocaleHelper::setLocale(LocaleHelper::getLocale());
 
         return $next($request);

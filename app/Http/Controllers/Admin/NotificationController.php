@@ -52,7 +52,7 @@ class NotificationController extends Controller
     {
         $success = $this->notificationService->markAsRead($id);
 
-        if (!$success) {
+        if (! $success) {
             return response()->json(['message' => 'Notification not found'], 404);
         }
 
@@ -79,7 +79,7 @@ class NotificationController extends Controller
     {
         $success = $this->notificationService->delete($id);
 
-        if (!$success) {
+        if (! $success) {
             return response()->json(['message' => 'Notification not found'], 404);
         }
 

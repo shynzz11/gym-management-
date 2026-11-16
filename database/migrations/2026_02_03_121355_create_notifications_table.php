@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('action_url')->nullable(); // Link to related resource
             $table->timestamp('read_at')->nullable();
             $table->timestamps();
-            
+
             // Indexes for performance
             $table->index(['user_id', 'read_at']);
             $table->index('created_at');

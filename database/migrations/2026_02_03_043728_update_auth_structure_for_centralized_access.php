@@ -15,21 +15,21 @@ return new class extends Migration
                 $table->dropForeign(['role_id']);
                 $table->dropColumn('role_id');
             }
-            
-            if (!Schema::hasColumn('users', 'type')) {
+
+            if (! Schema::hasColumn('users', 'type')) {
                 $table->enum('type', ['super-admin', 'admin', 'customer'])->default('customer')->after('email');
             }
         });
 
         // 2. Update Roles Table
         Schema::table('roles', function (Blueprint $table) {
-            if (!Schema::hasColumn('roles', 'description')) {
+            if (! Schema::hasColumn('roles', 'description')) {
                 $table->text('description')->nullable()->after('name');
             }
         });
 
         // 3. Create Permissions Table
-        if (!Schema::hasTable('permissions')) {
+        if (! Schema::hasTable('permissions')) {
             Schema::create('permissions', function (Blueprint $table) {
                 $table->id();
                 $table->string('name')->unique();
@@ -38,7 +38,7 @@ return new class extends Migration
         }
 
         // 4. Create User Roles Pivot
-        if (!Schema::hasTable('user_roles')) {
+        if (! Schema::hasTable('user_roles')) {
             Schema::create('user_roles', function (Blueprint $table) {
                 $table->foreignId('user_id')->constrained()->cascadeOnDelete();
                 $table->foreignId('role_id')->constrained()->cascadeOnDelete();
@@ -47,7 +47,7 @@ return new class extends Migration
         }
 
         // 5. Create Role Permissions Pivot
-        if (!Schema::hasTable('role_permissions')) {
+        if (! Schema::hasTable('role_permissions')) {
             Schema::create('role_permissions', function (Blueprint $table) {
                 $table->foreignId('role_id')->constrained()->cascadeOnDelete();
                 $table->foreignId('permission_id')->constrained()->cascadeOnDelete();
@@ -56,7 +56,7 @@ return new class extends Migration
         }
 
         // 6. Create Admin Profiles Table
-        if (!Schema::hasTable('admin_profiles')) {
+        if (! Schema::hasTable('admin_profiles')) {
             Schema::create('admin_profiles', function (Blueprint $table) {
                 $table->id();
                 $table->foreignId('user_id')->constrained()->cascadeOnDelete();
@@ -69,7 +69,7 @@ return new class extends Migration
         }
 
         // 7. Create Customer Profiles Table
-        if (!Schema::hasTable('customer_profiles')) {
+        if (! Schema::hasTable('customer_profiles')) {
             Schema::create('customer_profiles', function (Blueprint $table) {
                 $table->id();
                 $table->foreignId('user_id')->constrained()->cascadeOnDelete();
@@ -94,8 +94,8 @@ return new class extends Migration
         });
 
         Schema::table('users', function (Blueprint $table) {
-             $table->dropColumn('type');
-             // $table->foreignId('role_id')->nullable()->constrained(); // Optional restore
+            $table->dropColumn('type');
+            // $table->foreignId('role_id')->nullable()->constrained(); // Optional restore
         });
     }
 };

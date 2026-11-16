@@ -30,6 +30,8 @@ class Permissions
     // Section: Gym Management
     public const SECTION_GYM = 'gym_section';
 
+    public const MANAGE_CUSTOMERS = 'manage_customers';
+
     public const MANAGE_PLANS = 'manage_plans';
 
     public const MANAGE_SUBSCRIPTIONS = 'manage_subscriptions';
@@ -59,7 +61,7 @@ class Permissions
                         'route' => 'admin.dashboard',
                         'icon' => 'Activity',
                     ],
-                    self::MEMBER_DIRECTORY => [
+                    self::MANAGE_CUSTOMERS => [
                         'label' => 'customer_list',
                         'description' => 'Browse registered customers and membership status.',
                         'route' => 'admin.customers.index',

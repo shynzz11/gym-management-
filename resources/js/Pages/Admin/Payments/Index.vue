@@ -1,15 +1,22 @@
 <script setup lang="ts">
 import ConfirmationModal from '@/Components/Common/ConfirmationModal.vue';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
-import { Head, router } from '@inertiajs/vue3';
-import { computed, onBeforeUnmount, onMounted, PropType, ref } from 'vue';
+import { Head, Link, router } from '@inertiajs/vue3';
+import { debounce } from 'lodash';
+import { computed, onBeforeUnmount, onMounted, PropType, ref, watch } from 'vue';
 import { ChevronDown, CreditCard, History, Search, User, X } from 'lucide-vue-next';
 import admin from '@/routes/admin';
 import dayjs from 'dayjs';
 import useCurrency from '@/Composables/useCurrency';
 
 const props = defineProps({
-    payments: Array as PropType<any[]>,
+    payments: Object as PropType<{
+        data: any[];
+        links: { url: string | null; label: string; active: boolean }[];
+        current_page: number;
+        last_page: number;
+        total: number;
+    }>,
     customers: Array as PropType<any[]>,
     plans: Array as PropType<any[]>,
     indexUrl: String as PropType<string>,
@@ -17,6 +24,7 @@ const props = defineProps({
         customer_id?: number | null;
         plan_id?: number | null;
         status?: string | null;
+        search?: string | null;
     }>,
 });
 
@@ -32,7 +40,7 @@ const customerDropdownRef = ref<HTMLElement | null>(null);
 const planDropdownRef = ref<HTMLElement | null>(null);
 const customerSearchInputRef = ref<HTMLInputElement | null>(null);
 const planSearchInputRef = ref<HTMLInputElement | null>(null);
-const searchQuery = ref('');
+const searchQuery = ref(props.filters?.search ?? '');
 const showApproveConfirmModal = ref(false);
 const showDenyReasonModal = ref(false);
 const actionPayment = ref<any | null>(null);
@@ -100,27 +108,10 @@ const filteredPlans = computed(() => {
     });
 });
 
-const paymentRows = computed(() => props.payments ?? []);
-const filteredPaymentRows = computed(() => {
-    const normalizedQuery = searchQuery.value.trim().toLowerCase();
-
-    if (!normalizedQuery) {
-        return paymentRows.value;
-    }
-
-    return paymentRows.value.filter((payment) => {
-        const searchableFields = [
-            `PAY-${String(payment?.id ?? '').padStart(6, '0')}`,
-            String(payment?.subscription?.user?.name ?? ''),
-            String(payment?.subscription?.plan?.name ?? ''),
-            String(payment?.method ?? ''),
-            String(payment?.status ?? ''),
-            formatTransactionType(payment?.transaction_type),
-        ];
-
-        return searchableFields.some((field) => field.toLowerCase().includes(normalizedQuery));
-    });
-});
+// Search runs server-side so it covers every page, not just the rows currently loaded.
+const paymentRows = computed(() => props.payments?.data ?? []);
+const paginationLinks = computed(() => props.payments?.links ?? []);
+const totalPayments = computed(() => props.payments?.total ?? 0);
 const isPendingOnlyView = computed(() => `${status.value}`.toLowerCase() === 'pending');
 const paymentSectionTitle = computed(() => {
     return isPendingOnlyView.value ? 'Pending Payment Requests' : 'Transactions';
@@ -219,6 +210,7 @@ const applyFilters = () => {
             customer_id: customerId.value || undefined,
             plan_id: planId.value || undefined,
             status: status.value || undefined,
+            search: searchQuery.value.trim() || undefined,
         },
         {
             preserveState: true,
@@ -249,6 +241,8 @@ const clearPlanFilter = (): void => {
         applyFilters();
     }
 };
+
+watch(searchQuery, debounce(() => applyFilters(), 300));
 
 const resetFilters = () => {
     customerId.value = '';
@@ -407,7 +401,7 @@ const submitPaymentStatusAction = (decision: 'approve' | 'deny'): void => {
 
             <div
                 class="overflow-hidden rounded-3xl border border-slate-200 bg-white p-6 text-center shadow-sm dark:border-slate-700/50 dark:bg-slate-800"
-                v-if="!payments?.length"
+                v-if="!paymentRows.length && !hasActiveFilters"
             >
                 <CreditCard class="mx-auto mb-4 h-16 w-16 text-slate-300 dark:text-slate-600" />
                 <h3 class="text-lg font-bold text-slate-900 dark:text-white">{{ __('No Transactions Found') }}</h3>
@@ -416,11 +410,11 @@ const submitPaymentStatusAction = (decision: 'approve' | 'deny'): void => {
                 </p>
             </div>
 
-            <div v-if="paymentRows.length" class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm dark:border-slate-700/50 dark:bg-slate-800">
+            <div v-if="paymentRows.length || hasActiveFilters" class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm dark:border-slate-700/50 dark:bg-slate-800">
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 p-4 dark:border-slate-700/50">
                     <h3 class="flex items-center gap-2 text-base font-bold text-slate-900 dark:text-white">
                         <CreditCard class="text-emerald-500" :size="20" />
-                        <span>{{ __(paymentSectionTitle) }} ({{ filteredPaymentRows.length }})</span>
+                        <span>{{ __(paymentSectionTitle) }} ({{ totalPayments }})</span>
                     </h3>
                     <div class="flex w-full flex-col gap-2 lg:w-auto lg:flex-row lg:items-center">
                         <div class="relative w-full lg:w-72">
@@ -569,7 +563,7 @@ const submitPaymentStatusAction = (decision: 'approve' | 'deny'): void => {
                         </thead>
                         <tbody class="divide-y divide-slate-100 dark:divide-slate-700/50">
                             <tr
-                                v-for="payment in filteredPaymentRows"
+                                v-for="payment in paymentRows"
                                 :key="payment.id"
                                 class="transition-colors hover:bg-slate-50/50 dark:hover:bg-slate-800/50"
                             >
@@ -652,13 +646,39 @@ const submitPaymentStatusAction = (decision: 'approve' | 'deny'): void => {
                                     </div>
                                 </td>
                             </tr>
-                            <tr v-if="!filteredPaymentRows.length">
+                            <tr v-if="!paymentRows.length">
                                 <td :colspan="tableColumnCount" class="p-8 text-center text-sm text-slate-500 italic">
                                     {{ __('No matching transactions found.') }}
                                 </td>
                             </tr>
                         </tbody>
                     </table>
+                </div>
+
+                <div
+                    v-if="paginationLinks.length > 3"
+                    class="flex items-center justify-between border-t border-slate-100 px-6 py-4 dark:border-slate-700/50"
+                >
+                    <p class="text-xs font-medium text-slate-500 dark:text-slate-400">
+                        {{ __('Page') }} {{ payments?.current_page }} / {{ payments?.last_page }}
+                    </p>
+                    <div class="flex items-center gap-1">
+                        <Link
+                            v-for="(link, index) in paginationLinks"
+                            :key="index"
+                            :href="link.url || '#'"
+                            class="rounded-lg px-3 py-1 text-xs font-semibold transition-colors"
+                            :class="
+                                link.active
+                                    ? 'bg-primary-600 text-white'
+                                    : 'text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700'
+                            "
+                            :preserve-state="true"
+                            :preserve-scroll="true"
+                        >
+                            <span v-html="link.label"></span>
+                        </Link>
+                    </div>
                 </div>
             </div>
         </div>

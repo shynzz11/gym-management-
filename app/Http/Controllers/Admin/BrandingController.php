@@ -22,10 +22,11 @@ class BrandingController extends Controller
     public function update(UpdateBrandingRequest $request, Brand $brand)
     {
         $this->brandingService->updateSettings(
-            $brand, 
+            $brand,
             $request->validated()['settings'],
             $request->file('logo')
         );
+
         return redirect()->back()->with('success', 'Branding updated successfully.');
     }
 }

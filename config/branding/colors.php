@@ -53,7 +53,7 @@ return [
         'active_item_text' => $primary,
         'active_item_border' => $primary,
 
-        'active_item_bg_dark' => $primary . '20', // ~12% opacity
+        'active_item_bg_dark' => $primary.'20', // ~12% opacity
         'active_item_text_dark' => $primary_dark_text,
         'active_item_border_dark' => $primary_dark_text,
 

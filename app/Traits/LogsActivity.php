@@ -16,7 +16,7 @@ trait LogsActivity
         });
 
         static::updated(function ($model) {
-            if ($model->wasChanged() && !$model->wasRecentlyCreated) {
+            if ($model->wasChanged() && ! $model->wasRecentlyCreated) {
                 $model->logActivity('updated');
             }
         });
@@ -56,11 +56,11 @@ trait LogsActivity
         $modelName = class_basename($this);
         $identifier = $this->getActivityIdentifier();
 
-        return match($event) {
-            'created' => "Created new {$modelName}" . ($identifier ? ": {$identifier}" : ''),
-            'updated' => "Updated {$modelName}" . ($identifier ? ": {$identifier}" : ''),
-            'deleted' => "Deleted {$modelName}" . ($identifier ? ": {$identifier}" : ''),
-            default => "{$event} {$modelName}" . ($identifier ? ": {$identifier}" : ''),
+        return match ($event) {
+            'created' => "Created new {$modelName}".($identifier ? ": {$identifier}" : ''),
+            'updated' => "Updated {$modelName}".($identifier ? ": {$identifier}" : ''),
+            'deleted' => "Deleted {$modelName}".($identifier ? ": {$identifier}" : ''),
+            default => "{$event} {$modelName}".($identifier ? ": {$identifier}" : ''),
         };
     }
 
@@ -105,6 +105,7 @@ trait LogsActivity
             $attributes = $this->getAttributes();
             // Remove sensitive fields
             unset($attributes['password'], $attributes['remember_token']);
+
             return $attributes;
         }
 

@@ -58,8 +58,7 @@ class SubscriptionController extends Controller
             && Subscription::query()
                 ->where('user_id', $validated['user_id'])
                 ->where('plan_id', $validated['plan_id'])
-                ->where('status', 'active')
-                ->whereDate('end_date', '>=', now()->toDateString())
+                ->whereIn('status', ['active', 'expired'])
                 ->exists();
 
         $subscription = $this->subscriptionService->create($validated);

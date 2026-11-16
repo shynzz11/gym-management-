@@ -2,11 +2,11 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Role;
+use App\Models\User;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
-use App\Models\User;
-use App\Models\Role;
 
 class SupremeRoleMiddleware
 {
@@ -20,7 +20,7 @@ class SupremeRoleMiddleware
         $method = $request->method();
 
         // Only care about modifications
-        if (!in_array($method, ['PUT', 'PATCH', 'DELETE'])) {
+        if (! in_array($method, ['PUT', 'PATCH', 'DELETE'])) {
             return $next($request);
         }
 

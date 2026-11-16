@@ -12,8 +12,8 @@ class LocaleController extends Controller
 
     public function switch(string $locale): RedirectResponse
     {
-        \Illuminate\Support\Facades\Log::info("LocaleController: Switching to {$locale}");
         $this->localizationService->switchLocale($locale);
+
         return redirect()->back();
     }
 }

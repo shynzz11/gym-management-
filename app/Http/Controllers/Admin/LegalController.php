@@ -4,14 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\BusinessSetting;
-use Illuminate\Http\Request;
-use Inertia\Inertia;
 
 class LegalController extends Controller
 {
-    public function __construct(protected \App\Services\BusinessSettingService $businessSettingService)
-    {
-    }
+    public function __construct(protected \App\Services\BusinessSettingService $businessSettingService) {}
 
     public function index()
     {
@@ -28,7 +24,10 @@ class LegalController extends Controller
     {
         \Illuminate\Support\Facades\Gate::authorize(\App\Constants\Permissions::LEGAL_MANAGEMENT);
 
-        $this->businessSettingService->updateSettings($request->validated());
+        // Legal pages are rendered with v-html on public routes, so only store allowlisted markup.
+        $this->businessSettingService->updateSettings(
+            array_map(\App\Support\HtmlSanitizer::clean(...), $request->validated()),
+        );
 
         return back()->with('success', 'Legal documents updated successfully.');
     }

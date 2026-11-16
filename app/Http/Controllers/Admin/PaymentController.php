@@ -83,6 +83,7 @@ class PaymentController extends Controller
                 'type' => $filters['type'] ?? null,
                 'method' => $filters['method'] ?? null,
                 'status' => $filters['status'] ?? null,
+                'search' => $filters['search'] ?? null,
             ],
         ]);
     }

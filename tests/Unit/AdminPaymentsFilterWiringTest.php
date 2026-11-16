@@ -25,7 +25,8 @@ test('admin payments filter request, controller wiring, and page filters exist',
         ->toContain("'filters' => [");
 
     expect($service)
-        ->toContain('public function getAll(array $filters = []): Collection')
+        ->toContain('public function getAll(array $filters = [], int $perPage = 25): LengthAwarePaginator')
+        ->toContain('->paginate($perPage)')
         ->toContain("whereHas('subscription'")
         ->toContain("->where('method', \$method)")
         ->toContain("->where('status', \$status)")
@@ -40,7 +41,9 @@ test('admin payments filter request, controller wiring, and page filters exist',
         ->toContain('const planSearchQuery = ref(\'\');')
         ->toContain('const filteredCustomers = computed(() => {')
         ->toContain('const filteredPlans = computed(() => {')
-        ->toContain('const paymentRows = computed(() => props.payments ?? []);')
+        ->toContain('const paymentRows = computed(() => props.payments?.data ?? []);')
+        ->toContain('const paginationLinks = computed(() => props.payments?.links ?? []);')
+        ->toContain('search: searchQuery.value.trim() || undefined')
         ->toContain('const isPendingOnlyView = computed(() => `${status.value}`.toLowerCase() === \'pending\');')
         ->toContain('const paymentSectionTitle = computed(() => {')
         ->toContain('const hasActiveFilters = computed(() => {')
@@ -67,7 +70,7 @@ test('admin payments filter request, controller wiring, and page filters exist',
         ->toContain("{{ __('Plan') }}")
         ->toContain('{{ __(paymentSectionTitle) }}')
         ->toContain('payment.subscription?.plan?.name')
-        ->toContain('v-for="payment in filteredPaymentRows"')
+        ->toContain('v-for="payment in paymentRows"')
         ->toContain(':disabled="!hasActiveFilters"')
         ->toContain('@click="resetFilters"');
 });

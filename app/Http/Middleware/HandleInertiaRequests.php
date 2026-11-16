@@ -78,7 +78,7 @@ class HandleInertiaRequests extends Middleware
         return [
             ...parent::share($request),
             'name' => $businessName,
-            'is_demo_mode' => env('APP_MODE') === 'demo',
+            'is_demo_mode' => config('app.mode') === 'demo',
             'auth' => [
                 'user' => $user,
                 'is_super_admin' => $user?->isSuperAdmin() ?? false,

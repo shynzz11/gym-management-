@@ -3,12 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rule;
-
-use App\Traits\UploadsMedia;
 
 class ProfileController extends Controller
 {
@@ -22,8 +17,8 @@ class ProfileController extends Controller
     public function update(\App\Http\Requests\Admin\UpdateAdminProfileRequest $request)
     {
         $this->userService->update(
-            $request->user(), 
-            $request->validated(), 
+            $request->user(),
+            $request->validated(),
             $request->file('profile_image')
         );
 

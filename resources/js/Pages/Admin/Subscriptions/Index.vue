@@ -260,13 +260,13 @@ const approveSubscription = (subscriptionId: number) => {
 const renewSubscription = (subscription: any) => {
     processingActionSubscriptionId.value = Number(subscription.id);
 
+    // Sent without a start date so the backend extends from the current end date (or from today if lapsed).
     router.post(
         admin.subscriptions.store.url(),
         {
             user_id: Number(subscription.user_id),
             plan_id: Number(subscription.plan_id),
             status: 'active',
-            start_date: dayjs().format('YYYY-MM-DD'),
         },
         {
             preserveScroll: true,

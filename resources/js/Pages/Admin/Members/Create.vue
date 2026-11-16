@@ -226,7 +226,8 @@ const filteredCountryOptions = computed(() => {
 });
 
 const planDisplayPrice = (plan: any): string => {
-    const price = plan?.is_offer && plan?.offer_price ? Number(plan.offer_price) : Number(plan?.price ?? 0);
+    const isOfferActive = plan?.is_offer && plan?.offer_price && plan?.offer_ends_at && new Date(plan.offer_ends_at) > new Date();
+    const price = isOfferActive ? Number(plan.offer_price) : Number(plan?.price ?? 0);
 
     return formatCurrency(Number.isFinite(price) ? price : 0);
 };

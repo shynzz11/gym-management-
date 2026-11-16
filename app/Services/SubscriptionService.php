@@ -8,6 +8,7 @@ use App\Models\Subscription;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\ValidationException;
 
@@ -104,6 +105,11 @@ class SubscriptionService
 
     public function create(array $data)
     {
+        return DB::transaction(fn () => $this->createWithinTransaction($data));
+    }
+
+    private function createWithinTransaction(array $data): Subscription
+    {
         $plan = Plan::findOrFail($data['plan_id']);
         $paymentMethod = $data['payment_method'] ?? 'manual';
         $status = $data['status'] ?? 'active';
@@ -119,6 +125,7 @@ class SubscriptionService
                 ->where('plan_id', $data['plan_id'])
                 ->whereIn('status', ['active', 'expired'])
                 ->latest('end_date')
+                ->lockForUpdate()
                 ->first();
 
             if ($existingSubscription) {
@@ -131,7 +138,7 @@ class SubscriptionService
                 );
             }
         } elseif ($status === 'active') {
-            $renewableSubscription = $this->findRenewableActiveSubscription(
+            $renewableSubscription = $this->findRenewableSubscription(
                 (int) $data['user_id'],
                 (int) $data['plan_id'],
             );
@@ -151,7 +158,7 @@ class SubscriptionService
         if ($subscription->scheduled_activation) {
             $subscription->payments()->create(
                 $this->buildPaymentPayload(
-                    amount: $plan->price,
+                    amount: $plan->current_price,
                     method: $paymentMethod,
                     transactionType: 'new',
                 ),
@@ -160,7 +167,7 @@ class SubscriptionService
         } elseif ($subscription->status === 'active') {
             $subscription->payments()->create(
                 $this->buildPaymentPayload(
-                    amount: $plan->price,
+                    amount: $plan->current_price,
                     method: $paymentMethod,
                     transactionType: 'new',
                 ),
@@ -187,7 +194,7 @@ class SubscriptionService
 
         $subscription->payments()->create(
             $this->buildPaymentPayload(
-                amount: $plan->price,
+                amount: $plan->current_price,
                 method: $paymentMethod,
                 transactionType: 'renew',
             ),
@@ -196,14 +203,14 @@ class SubscriptionService
         return $subscription->refresh();
     }
 
-    private function findRenewableActiveSubscription(int $userId, int $planId): ?Subscription
+    private function findRenewableSubscription(int $userId, int $planId): ?Subscription
     {
         return Subscription::query()
             ->where('user_id', $userId)
             ->where('plan_id', $planId)
-            ->where('status', 'active')
-            ->whereDate('end_date', '>=', now()->toDateString())
+            ->whereIn('status', ['active', 'expired'])
             ->latest('end_date')
+            ->lockForUpdate()
             ->first();
     }
 
@@ -211,19 +218,25 @@ class SubscriptionService
     {
         $today = now()->startOfDay();
         $currentEndDate = $subscription->end_date;
-        $renewalBaseDate = $currentEndDate && $currentEndDate->greaterThanOrEqualTo($today)
-            ? $currentEndDate->copy()
-            : Carbon::instance($today);
+        $hasLapsed = ! $currentEndDate || $currentEndDate->lessThan($today);
+        $renewalBaseDate = $hasLapsed ? Carbon::instance($today) : $currentEndDate->copy();
         $renewedEndDate = $renewalBaseDate->addDays($plan->duration_days)->toDateString();
 
-        $subscription->update([
+        $payload = [
             'status' => 'active',
             'end_date' => $renewedEndDate,
-        ]);
+        ];
+
+        // A lapsed membership starts a fresh cycle today rather than back-dating to the old start.
+        if ($hasLapsed) {
+            $payload['start_date'] = $today->toDateString();
+        }
+
+        $subscription->update($payload);
 
         $subscription->payments()->create(
             $this->buildPaymentPayload(
-                amount: $plan->price,
+                amount: $plan->current_price,
                 method: $paymentMethod,
                 transactionType: 'renew',
             ),
@@ -233,6 +246,15 @@ class SubscriptionService
     }
 
     public function updateStatus(Subscription $subscription, string $status): Subscription
+    {
+        return DB::transaction(function () use ($subscription, $status): Subscription {
+            $subscription = Subscription::query()->lockForUpdate()->findOrFail($subscription->id);
+
+            return $this->updateStatusWithinTransaction($subscription, $status);
+        });
+    }
+
+    private function updateStatusWithinTransaction(Subscription $subscription, string $status): Subscription
     {
         if ($status === 'active' && $subscription->start_date->isAfter(now()->startOfDay())) {
             $subscription->update([
@@ -246,7 +268,7 @@ class SubscriptionService
                 $subscription->loadMissing('plan');
                 $subscription->payments()->create(
                     $this->buildPaymentPayload(
-                        amount: $subscription->plan->price,
+                        amount: $subscription->plan->current_price,
                         method: 'manual',
                         transactionType: $this->resolveManualTransactionType($subscription),
                     ),
@@ -270,10 +292,10 @@ class SubscriptionService
         ]);
 
         if ($status === 'active') {
-            if ($subscription->end_date->isPast()) {
+            if ($subscription->end_date->lt(now()->startOfDay())) {
                 $subscription->update([
-                    'start_date' => now(),
-                    'end_date' => now()->addDays($subscription->plan->duration_days),
+                    'start_date' => now()->toDateString(),
+                    'end_date' => now()->addDays($subscription->plan->duration_days)->toDateString(),
                 ]);
             }
 
@@ -285,7 +307,7 @@ class SubscriptionService
                 $transactionType = $this->resolveManualTransactionType($subscription);
                 $subscription->payments()->create(
                     $this->buildPaymentPayload(
-                        amount: $subscription->plan->price,
+                        amount: $subscription->plan->current_price,
                         method: 'manual',
                         transactionType: $transactionType,
                     ),

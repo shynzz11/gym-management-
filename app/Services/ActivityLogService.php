@@ -15,28 +15,24 @@ class ActivityLogService
     {
         $query = ActivityLog::with('user:id,name,email')->latest();
 
-        if (!empty($filters['search'])) {
+        if (! empty($filters['search'])) {
             $search = $filters['search'];
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('description', 'like', "%{$search}%")
-                  ->orWhere('ip_address', 'like', "%{$search}%")
-                  ->orWhereHas('user', fn($q) => 
-                      $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('ip_address', 'like', "%{$search}%")
+                    ->orWhereHas('user', fn ($q) => $q->where('name', 'like', "%{$search}%")
                         ->orWhere('email', 'like', "%{$search}%"));
             });
         }
 
-        if (!empty($filters['event'])) {
+        if (! empty($filters['event'])) {
             $query->where('event', $filters['event']);
         }
 
-        if (!empty($filters['date_range'])) {
-            $query->when($filters['date_range'] === 'today', fn($q) => 
-                $q->whereDate('created_at', today()))
-            ->when($filters['date_range'] === 'week', fn($q) => 
-                $q->where('created_at', '>=', now()->subWeek()))
-            ->when($filters['date_range'] === 'month', fn($q) => 
-                $q->where('created_at', '>=', now()->subMonth()));
+        if (! empty($filters['date_range'])) {
+            $query->when($filters['date_range'] === 'today', fn ($q) => $q->whereDate('created_at', today()))
+                ->when($filters['date_range'] === 'week', fn ($q) => $q->where('created_at', '>=', now()->subWeek()))
+                ->when($filters['date_range'] === 'month', fn ($q) => $q->where('created_at', '>=', now()->subMonth()));
         }
 
         return $query;

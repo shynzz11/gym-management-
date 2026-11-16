@@ -25,6 +25,7 @@ class FilterPaymentRequest extends FormRequest
             'type' => ['nullable', 'string', Rule::in(['new', 'renew'])],
             'method' => ['nullable', 'string', 'max:50'],
             'status' => ['nullable', 'string', Rule::in(['pending', 'completed', 'processed', 'failed', 'canceled', 'cancelled'])],
+            'search' => ['nullable', 'string', 'max:100'],
         ];
     }
 }

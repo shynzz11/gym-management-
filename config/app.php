@@ -28,6 +28,9 @@ return [
 
     'env' => env('APP_ENV', 'production'),
 
+    // "demo" disables saving business settings. Read via config() so it survives config:cache.
+    'mode' => env('APP_MODE'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Debug Mode

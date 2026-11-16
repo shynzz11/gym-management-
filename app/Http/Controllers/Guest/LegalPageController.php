@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Guest;
 
 use App\Http\Controllers\Controller;
 use App\Models\BusinessSetting;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class LegalPageController extends Controller
@@ -17,7 +16,7 @@ class LegalPageController extends Controller
             'about-us' => 'about_us',
         ];
 
-        if (!array_key_exists($slug, $validSlugs)) {
+        if (! array_key_exists($slug, $validSlugs)) {
             abort(404);
         }
 
@@ -27,7 +26,8 @@ class LegalPageController extends Controller
 
         return Inertia::render('Guest/Legal/Show', [
             'title' => $title,
-            'content' => $content,
+            // Also sanitised on save; repeated here so content stored before that change is safe too.
+            'content' => \App\Support\HtmlSanitizer::clean($content),
         ]);
     }
 }

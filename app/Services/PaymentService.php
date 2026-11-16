@@ -4,8 +4,8 @@ namespace App\Services;
 
 use App\Models\Payment;
 use App\Models\Subscription;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -17,13 +17,14 @@ class PaymentService
 
     private ?bool $supportsPaymentDenialReason = null;
 
-    public function getAll(array $filters = []): Collection
+    public function getAll(array $filters = [], int $perPage = 25): LengthAwarePaginator
     {
         $customerId = isset($filters['customer_id']) ? (int) $filters['customer_id'] : null;
         $planId = isset($filters['plan_id']) ? (int) $filters['plan_id'] : null;
         $method = isset($filters['method']) ? trim((string) $filters['method']) : '';
         $type = isset($filters['type']) ? trim((string) $filters['type']) : '';
         $status = isset($filters['status']) ? trim((string) $filters['status']) : '';
+        $search = isset($filters['search']) ? trim((string) $filters['search']) : '';
 
         return Payment::query()
             ->with(['subscription.user:id,name,email', 'subscription.plan:id,name'])
@@ -46,8 +47,39 @@ class PaymentService
             ->when($type !== '' && $this->paymentSupportsTransactionType(), function (Builder $query) use ($type): void {
                 $query->where('transaction_type', $type);
             })
+            ->when($search !== '', function (Builder $query) use ($search): void {
+                $this->applySearch($query, $search);
+            })
             ->latest()
-            ->get();
+            ->paginate($perPage)
+            ->withQueryString();
+    }
+
+    /**
+     * Matches the receipt reference shown in the UI (PAY-000123), customer, plan, method, status and type.
+     */
+    private function applySearch(Builder $query, string $search): void
+    {
+        $paymentId = preg_match('/^(?:pay-?)?0*(\d+)$/i', $search, $matches) ? (int) $matches[1] : null;
+
+        $query->where(function (Builder $searchQuery) use ($search, $paymentId): void {
+            $searchQuery->where('method', 'like', "%{$search}%")
+                ->orWhere('status', 'like', "%{$search}%")
+                ->orWhereHas('subscription.user', function (Builder $userQuery) use ($search): void {
+                    $userQuery->where('name', 'like', "%{$search}%");
+                })
+                ->orWhereHas('subscription.plan', function (Builder $planQuery) use ($search): void {
+                    $planQuery->where('name', 'like', "%{$search}%");
+                });
+
+            if ($this->paymentSupportsTransactionType()) {
+                $searchQuery->orWhere('transaction_type', 'like', "%{$search}%");
+            }
+
+            if ($paymentId !== null) {
+                $searchQuery->orWhere('id', $paymentId);
+            }
+        });
     }
 
     /**

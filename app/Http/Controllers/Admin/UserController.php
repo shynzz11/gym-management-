@@ -36,7 +36,7 @@ class UserController extends Controller
 
     public function customers(): \Inertia\Response
     {
-        \Illuminate\Support\Facades\Gate::authorize(\App\Constants\Permissions::MEMBER_DIRECTORY);
+        \Illuminate\Support\Facades\Gate::authorize(\App\Constants\Permissions::MANAGE_CUSTOMERS);
 
         $users = $this->userService->getAll([
             ...request()->only('search'),
@@ -84,7 +84,7 @@ class UserController extends Controller
 
     public function createCustomer(): \Inertia\Response
     {
-        \Illuminate\Support\Facades\Gate::authorize(\App\Constants\Permissions::MEMBER_DIRECTORY);
+        \Illuminate\Support\Facades\Gate::authorize(\App\Constants\Permissions::MANAGE_CUSTOMERS);
 
         return inertia('Admin/Members/Create', [
             'directoryType' => 'customer',
@@ -129,7 +129,7 @@ class UserController extends Controller
 
     public function storeCustomer(StoreUserRequest $request): \Illuminate\Http\RedirectResponse
     {
-        \Illuminate\Support\Facades\Gate::authorize(\App\Constants\Permissions::MEMBER_DIRECTORY);
+        \Illuminate\Support\Facades\Gate::authorize(\App\Constants\Permissions::MANAGE_CUSTOMERS);
 
         $data = $request->validated();
         $data['type'] = UserType::CUSTOMER->value;
@@ -138,15 +138,17 @@ class UserController extends Controller
         unset($data['role_id']);
         unset($data['plan_id']);
 
-        $customer = $this->userService->create($data);
+        \Illuminate\Support\Facades\DB::transaction(function () use ($data, $selectedPlanId): void {
+            $customer = $this->userService->create($data);
 
-        if ($selectedPlanId) {
-            $this->subscriptionService->create([
-                'user_id' => $customer->id,
-                'plan_id' => $selectedPlanId,
-                'status' => 'active',
-            ]);
-        }
+            if ($selectedPlanId) {
+                $this->subscriptionService->create([
+                    'user_id' => $customer->id,
+                    'plan_id' => $selectedPlanId,
+                    'status' => 'active',
+                ]);
+            }
+        });
 
         return to_route('admin.customers.index')->with('success', 'Customer created successfully.');
     }
@@ -176,7 +178,7 @@ class UserController extends Controller
 
     public function editCustomer(User $user): \Inertia\Response
     {
-        \Illuminate\Support\Facades\Gate::authorize(\App\Constants\Permissions::MEMBER_DIRECTORY);
+        \Illuminate\Support\Facades\Gate::authorize(\App\Constants\Permissions::MANAGE_CUSTOMERS);
 
         if (! $user->isCustomer()) {
             abort(404);
@@ -228,7 +230,7 @@ class UserController extends Controller
 
     public function updateCustomer(\App\Http\Requests\Admin\UpdateUserRequest $request, User $user): \Illuminate\Http\RedirectResponse
     {
-        \Illuminate\Support\Facades\Gate::authorize(\App\Constants\Permissions::MEMBER_DIRECTORY);
+        \Illuminate\Support\Facades\Gate::authorize(\App\Constants\Permissions::MANAGE_CUSTOMERS);
 
         if (! $user->isCustomer()) {
             abort(404);
@@ -245,7 +247,7 @@ class UserController extends Controller
 
     public function updateStatus(\App\Http\Requests\Admin\UpdateUserStatusRequest $request, User $user): \Illuminate\Http\RedirectResponse
     {
-        \Illuminate\Support\Facades\Gate::authorize(\App\Constants\Permissions::MEMBER_DIRECTORY);
+        $this->authorizeForTarget($user);
 
         if ($user->isSuperAdmin()) {
             abort(403, 'The Super Admin account is immutable.');
@@ -258,7 +260,7 @@ class UserController extends Controller
 
     public function destroy(User $user): \Illuminate\Http\RedirectResponse
     {
-        \Illuminate\Support\Facades\Gate::authorize(\App\Constants\Permissions::MEMBER_DIRECTORY);
+        $this->authorizeForTarget($user);
 
         if ($user->isSuperAdmin()) {
             abort(403, 'The Super Admin account is immutable.');
@@ -271,5 +273,15 @@ class UserController extends Controller
         $this->userService->delete($user);
 
         return back()->with('success', 'User deleted successfully.');
+    }
+
+    /**
+     * Shared staff/customer actions need the permission that matches who is being changed.
+     */
+    private function authorizeForTarget(User $user): void
+    {
+        \Illuminate\Support\Facades\Gate::authorize($user->isCustomer()
+            ? \App\Constants\Permissions::MANAGE_CUSTOMERS
+            : \App\Constants\Permissions::MEMBER_DIRECTORY);
     }
 }
