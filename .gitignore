@@ -27,3 +27,5 @@ yarn-error.log
 /.nova
 /.vscode
 /.zed
+/scripts/deploy.config.psd1
+/.deploy.env

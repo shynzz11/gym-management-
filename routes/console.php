@@ -9,7 +9,7 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Schedule::command('membership:check-expiry')
-    ->dailyAt('00:01')
+    ->dailyAt('00:00')
     ->withoutOverlapping();
 
 Schedule::command('membership:activate-scheduled')
